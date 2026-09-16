@@ -36,7 +36,7 @@ final class KeyboardView: NSView {
 
     func handleDown(keycode: Int64) {
         guard let view = viewsByKeycode[Int(keycode)] else {
-            unmappedLabel.stringValue = "Unmapped key: keycode \(keycode) (not on this layout)"
+            unmappedLabel.stringValue = "Unmapped key: \(KeyNames.name(for: keycode)) (keycode \(keycode), not on this layout)"
             return
         }
         view.set(.pressed)

@@ -147,7 +147,7 @@ class EventTap {
     }
 
     private func emit(keyCode: Int64, isDown: Bool, label: String, flags: CGEventFlags) {
-        let logLine = "\(label.padding(toLength: 9, withPad: " ", startingAt: 0)) keycode=\(keyCode) name=\(Self.keyName(keyCode)) flags=\(Self.describeFlags(flags))"
+        let logLine = "\(label.padding(toLength: 9, withPad: " ", startingAt: 0)) keycode=\(keyCode) name=\(KeyNames.name(for: keyCode)) flags=\(Self.describeFlags(flags))"
         onActivity?(KeyActivity(keycode: keyCode, isDown: isDown, logLine: logLine))
     }
 
@@ -160,29 +160,5 @@ class EventTap {
         if flags.contains(.maskSecondaryFn) { parts.append("fn") }
         if flags.contains(.maskAlphaShift) { parts.append("capslock") }
         return parts.isEmpty ? "-" : parts.joined(separator: "+")
-    }
-
-    /// Named only for the keycodes relevant to the review's open items
-    /// (L/R modifier pairs + JIS-specific keys); everything else logs by
-    /// number for now. Filled in properly once layout JSON work starts.
-    private static func keyName(_ keyCode: Int64) -> String {
-        switch Int(keyCode) {
-        case kVK_Shift: return "LeftShift"
-        case kVK_RightShift: return "RightShift"
-        case kVK_Control: return "LeftControl"
-        case kVK_RightControl: return "RightControl"
-        case kVK_Option: return "LeftOption"
-        case kVK_RightOption: return "RightOption"
-        case kVK_Command: return "LeftCommand"
-        case kVK_RightCommand: return "RightCommand"
-        case kVK_Function: return "Fn"
-        case kVK_CapsLock: return "CapsLock"
-        case kVK_JIS_Yen: return "JIS_Yen"
-        case kVK_JIS_Underscore: return "JIS_Underscore"
-        case kVK_JIS_KeypadComma: return "JIS_KeypadComma"
-        case kVK_JIS_Eisu: return "JIS_Eisu"
-        case kVK_JIS_Kana: return "JIS_Kana"
-        default: return "?"
-        }
     }
 }
