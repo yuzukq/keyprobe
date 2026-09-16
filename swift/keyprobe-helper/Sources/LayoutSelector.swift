@@ -20,15 +20,21 @@ enum LayoutSelector {
             file = "ansi.json"
         case "jis":
             file = "jis.json"
+        case "iso":
+            file = "iso.json"
         default:
-            file = detectHardwareLayoutIsJIS() ? "jis.json" : "ansi.json"
+            file = detectHardwareLayoutFile()
         }
         return (layoutDir as NSString).appendingPathComponent(file)
     }
 
-    private static func detectHardwareLayoutIsJIS() -> Bool {
+    private static func detectHardwareLayoutFile() -> String {
         let kbdType = LMGetKbdType()
-        let layoutType = KBGetLayoutType(Int16(kbdType))
-        return Int(layoutType) == Int(kKeyboardJIS)
+        let layoutType = Int(KBGetLayoutType(Int16(kbdType)))
+        switch layoutType {
+        case Int(kKeyboardJIS): return "jis.json"
+        case Int(kKeyboardISO): return "iso.json"
+        default: return "ansi.json"
+        }
     }
 }
