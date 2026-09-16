@@ -2,18 +2,20 @@ import AppKit
 import Foundation
 
 /// Standalone helper for KeyProbe.
-/// Usage: KeyProbeHelper --pid <path> --log <path> --layout <path>
+/// Usage: KeyProbeHelper --pid <path> --log <path> --layout-dir <path> --layout-mode <auto|ansi|jis>
 
 var pidPath: String?
 var logPath: String?
-var layoutPath: String?
+var layoutDir: String?
+var layoutMode = "auto"
 
 var argi = 1
 while argi < CommandLine.arguments.count {
     switch CommandLine.arguments[argi] {
     case "--pid": argi += 1; if argi < CommandLine.arguments.count { pidPath = CommandLine.arguments[argi] }
     case "--log": argi += 1; if argi < CommandLine.arguments.count { logPath = CommandLine.arguments[argi] }
-    case "--layout": argi += 1; if argi < CommandLine.arguments.count { layoutPath = CommandLine.arguments[argi] }
+    case "--layout-dir": argi += 1; if argi < CommandLine.arguments.count { layoutDir = CommandLine.arguments[argi] }
+    case "--layout-mode": argi += 1; if argi < CommandLine.arguments.count { layoutMode = CommandLine.arguments[argi] }
     default: break
     }
     argi += 1
@@ -84,10 +86,16 @@ sigUsr1.setEventHandler {
 sigUsr1.resume()
 signal(SIGUSR1, SIG_IGN)
 
-guard let layoutPath = layoutPath, let layout = Layout.load(from: layoutPath) else {
-    log("Failed to load layout from \(layoutPath ?? "<missing --layout>")")
+guard let layoutDir = layoutDir else {
+    log("Missing --layout-dir")
     exit(1)
 }
+let layoutPath = LayoutSelector.resolve(mode: layoutMode, layoutDir: layoutDir)
+guard let layout = Layout.load(from: layoutPath) else {
+    log("Failed to load layout from \(layoutPath)")
+    exit(1)
+}
+log("Loaded layout: \(layoutPath) (mode=\(layoutMode))")
 
 if !EventTap.shared.start(onActivity: { activity in
     log(activity.logLine)
