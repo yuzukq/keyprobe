@@ -2,24 +2,47 @@ import CoreGraphics
 import AppKit
 import Carbon.HIToolbox
 
+/// One key transition, already resolved to a simple down/up — including for
+/// modifier keys, which the OS only ever reports via flagsChanged (see the
+/// toggle-tracking note on `modifierKeysCurrentlyDown` below).
+struct KeyActivity {
+    let keycode: Int64
+    let isDown: Bool
+    let logLine: String
+}
+
 /// Captures global keyboard events via CGEventTap (listen-only — settled: Q5).
-///
-/// Vertical slice: reports a human-readable description of every keyDown,
-/// keyUp and flagsChanged event through `onEvent`. main.swift currently just
-/// logs these to a file so they can be checked against a real keyboard
-/// before any layout/rendering work starts (blocks #1 and #5 from the
-/// implementation review need to be confirmed empirically here).
 class EventTap {
     static let shared = EventTap()
 
     private var eventTap: CFMachPort?
     private var runLoopSource: CFRunLoopSource?
-    private var onEvent: ((String) -> Void)?
+    private var onActivity: ((KeyActivity) -> Void)?
+
+    // Modifier keys (Shift/Ctrl/Option/Command/Fn/CapsLock, incl. left/right
+    // pairs) never fire keyDown/keyUp — only flagsChanged (implementation
+    // review #1), and that event's flag bits are shared between e.g. left
+    // and right Shift, so they can't tell which physical key just changed.
+    // What's reliable is the event's own keycode field: the OS always
+    // reports the specific physical key that changed. So instead of reading
+    // direction from the flag bits, we toggle per keycode: the first
+    // flagsChanged for a given modifier keycode is "down", the next is "up".
+    // This also degrades fine for CapsLock (a hardware toggle switch) since
+    // press and release still each fire their own flagsChanged.
+    private var modifierKeysCurrentlyDown: Set<Int64> = []
+
+    private static let modifierKeycodes: Set<Int64> = [
+        Int64(kVK_Shift), Int64(kVK_RightShift),
+        Int64(kVK_Control), Int64(kVK_RightControl),
+        Int64(kVK_Option), Int64(kVK_RightOption),
+        Int64(kVK_Command), Int64(kVK_RightCommand),
+        Int64(kVK_Function), Int64(kVK_CapsLock),
+    ]
 
     private init() {}
 
-    func start(onEvent: @escaping (String) -> Void) -> Bool {
-        self.onEvent = onEvent
+    func start(onActivity: @escaping (KeyActivity) -> Void) -> Bool {
+        self.onActivity = onActivity
 
         if !CGPreflightListenEventAccess() {
             CGRequestListenEventAccess()
@@ -94,7 +117,8 @@ class EventTap {
         }
         eventTap = nil
         runLoopSource = nil
-        onEvent = nil
+        onActivity = nil
+        modifierKeysCurrentlyDown.removeAll()
     }
 
     private func handle(type: CGEventType, event: CGEvent) {
@@ -103,19 +127,28 @@ class EventTap {
 
         switch type {
         case .keyDown:
-            onEvent?("keyDown   keycode=\(keyCode) name=\(Self.keyName(keyCode)) flags=\(Self.describeFlags(flags))")
+            emit(keyCode: keyCode, isDown: true, label: "keyDown", flags: flags)
         case .keyUp:
-            onEvent?("keyUp     keycode=\(keyCode) name=\(Self.keyName(keyCode)) flags=\(Self.describeFlags(flags))")
+            emit(keyCode: keyCode, isDown: false, label: "keyUp", flags: flags)
         case .flagsChanged:
-            // Modifier keys (Shift/Ctrl/Option/Command/Fn/CapsLock, including
-            // left/right pairs) never fire keyDown/keyUp — only this event
-            // (implementation review #1). keyCode alone identifies exactly
-            // which physical key changed; `flags` gives the resulting mask
-            // so direction can be diffed once the UI layer tracks state.
-            onEvent?("flagsChanged keycode=\(keyCode) name=\(Self.keyName(keyCode)) flags=\(Self.describeFlags(flags))")
+            guard Self.modifierKeycodes.contains(keyCode) else { return }
+            let isDown: Bool
+            if modifierKeysCurrentlyDown.contains(keyCode) {
+                modifierKeysCurrentlyDown.remove(keyCode)
+                isDown = false
+            } else {
+                modifierKeysCurrentlyDown.insert(keyCode)
+                isDown = true
+            }
+            emit(keyCode: keyCode, isDown: isDown, label: isDown ? "keyDown*" : "keyUp*", flags: flags)
         default:
             break
         }
+    }
+
+    private func emit(keyCode: Int64, isDown: Bool, label: String, flags: CGEventFlags) {
+        let logLine = "\(label.padding(toLength: 9, withPad: " ", startingAt: 0)) keycode=\(keyCode) name=\(Self.keyName(keyCode)) flags=\(Self.describeFlags(flags))"
+        onActivity?(KeyActivity(keycode: keyCode, isDown: isDown, logLine: logLine))
     }
 
     private static func describeFlags(_ flags: CGEventFlags) -> String {

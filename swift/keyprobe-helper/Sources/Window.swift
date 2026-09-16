@@ -32,16 +32,23 @@ private final class KeyProbeWindow: NSWindow {
     }
 }
 
-/// Bare vertical-slice window: translucent panel, no key layout yet.
-/// Closing it quits the whole helper (settled: Q8 — no background
-/// persistence once the window goes away).
+/// Owns the window, the keyboard board, and the toolbar (reset button +
+/// unmapped-key readout). Closing the window quits the whole helper
+/// (settled: Q8 — no background persistence once the window goes away).
 final class KeyProbeWindowController: NSObject, NSWindowDelegate {
     static let shared = KeyProbeWindowController()
 
     private var window: KeyProbeWindow?
+    private var keyboardView: KeyboardView?
 
-    func show() {
-        let contentRect = NSRect(x: 0, y: 0, width: 900, height: 320)
+    func show(layout: Layout) {
+        let toolbarHeight: CGFloat = 40
+        let padding: CGFloat = 16
+        let boardWidth = layout.width * layout.unit
+        let boardHeight = layout.height * layout.unit
+        let contentSize = NSSize(width: boardWidth + padding * 2, height: boardHeight + toolbarHeight + padding * 2)
+        let contentRect = NSRect(origin: .zero, size: contentSize)
+
         let window = KeyProbeWindow(
             contentRect: contentRect,
             styleMask: [.titled, .closable, .fullSizeContentView],
@@ -63,13 +70,50 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
 
         let contentView = SwallowingContentView(frame: contentRect)
         contentView.addSubview(visualEffect)
-        window.contentView = contentView
 
+        let unmappedLabel = NSTextField(labelWithString: "")
+        unmappedLabel.font = .systemFont(ofSize: 11)
+        unmappedLabel.textColor = .secondaryLabelColor
+        unmappedLabel.lineBreakMode = .byTruncatingTail
+        unmappedLabel.frame = NSRect(
+            x: padding, y: contentSize.height - toolbarHeight - padding / 2,
+            width: boardWidth - 90, height: 20
+        )
+        unmappedLabel.autoresizingMask = [.width]
+        contentView.addSubview(unmappedLabel)
+
+        let keyboardView = KeyboardView(layout: layout, unmappedLabel: unmappedLabel)
+        keyboardView.frame.origin = NSPoint(x: padding, y: padding)
+        contentView.addSubview(keyboardView)
+        self.keyboardView = keyboardView
+
+        let resetButton = NSButton(title: "Reset", target: self, action: #selector(resetTapped))
+        resetButton.bezelStyle = .rounded
+        resetButton.frame = NSRect(
+            x: contentSize.width - 80 - padding, y: contentSize.height - toolbarHeight - padding / 2,
+            width: 80, height: 24
+        )
+        resetButton.autoresizingMask = [.minXMargin]
+        contentView.addSubview(resetButton)
+
+        window.contentView = contentView
         window.center()
         window.makeKeyAndOrderFront(nil)
         NSApp.activate(ignoringOtherApps: true)
 
         self.window = window
+    }
+
+    @objc private func resetTapped() {
+        keyboardView?.resetAll()
+    }
+
+    func handleDown(keycode: Int64) {
+        keyboardView?.handleDown(keycode: keycode)
+    }
+
+    func handleUp(keycode: Int64) {
+        keyboardView?.handleUp(keycode: keycode)
     }
 
     func bringToFront() {

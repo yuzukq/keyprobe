@@ -13,6 +13,10 @@ function getHelperPath(): string {
   return path.join(environment.assetsPath, "KeyProbeHelper");
 }
 
+function getLayoutPath(): string {
+  return path.join(environment.assetsPath, "layouts", "jis.json");
+}
+
 function readPid(): number | null {
   try {
     const pid = parseInt(fs.readFileSync(PID_FILE, "utf8").trim(), 10);
@@ -78,10 +82,14 @@ export async function startHelper(): Promise<{
   let out: number | null = null;
   try {
     out = fs.openSync(LOG_FILE, "a");
-    const child = spawn(helperPath, ["--pid", PID_FILE, "--log", LOG_FILE], {
-      detached: true,
-      stdio: ["ignore", out, out],
-    });
+    const child = spawn(
+      helperPath,
+      ["--pid", PID_FILE, "--log", LOG_FILE, "--layout", getLayoutPath()],
+      {
+        detached: true,
+        stdio: ["ignore", out, out],
+      },
+    );
     child.unref();
   } catch (error) {
     return {

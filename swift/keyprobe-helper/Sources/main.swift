@@ -2,20 +2,18 @@ import AppKit
 import Foundation
 
 /// Standalone helper for KeyProbe.
-/// Usage: KeyProbeHelper --pid <path> --log <path>
-///
-/// Vertical slice (see project notes): this build only proves the pipeline —
-/// event tap -> log file -> bare translucent window. Key-by-key layout
-/// rendering comes after this is verified against a real keyboard.
+/// Usage: KeyProbeHelper --pid <path> --log <path> --layout <path>
 
 var pidPath: String?
 var logPath: String?
+var layoutPath: String?
 
 var argi = 1
 while argi < CommandLine.arguments.count {
     switch CommandLine.arguments[argi] {
     case "--pid": argi += 1; if argi < CommandLine.arguments.count { pidPath = CommandLine.arguments[argi] }
     case "--log": argi += 1; if argi < CommandLine.arguments.count { logPath = CommandLine.arguments[argi] }
+    case "--layout": argi += 1; if argi < CommandLine.arguments.count { layoutPath = CommandLine.arguments[argi] }
     default: break
     }
     argi += 1
@@ -86,8 +84,18 @@ sigUsr1.setEventHandler {
 sigUsr1.resume()
 signal(SIGUSR1, SIG_IGN)
 
-if !EventTap.shared.start(onEvent: { description in
-    log(description)
+guard let layoutPath = layoutPath, let layout = Layout.load(from: layoutPath) else {
+    log("Failed to load layout from \(layoutPath ?? "<missing --layout>")")
+    exit(1)
+}
+
+if !EventTap.shared.start(onActivity: { activity in
+    log(activity.logLine)
+    if activity.isDown {
+        KeyProbeWindowController.shared.handleDown(keycode: activity.keycode)
+    } else {
+        KeyProbeWindowController.shared.handleUp(keycode: activity.keycode)
+    }
 }) {
     log("Failed to create event tap — Input Monitoring permission not granted.")
     if let pidPath = pidPath {
@@ -96,7 +104,7 @@ if !EventTap.shared.start(onEvent: { description in
     exit(1)
 }
 
-KeyProbeWindowController.shared.show()
+KeyProbeWindowController.shared.show(layout: layout)
 
 // PID file is written only after the tap + window are ready, so the Raycast
 // side never treats an early/failed startup as success.
