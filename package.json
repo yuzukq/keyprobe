@@ -1,0 +1,44 @@
+{
+  "$schema": "https://www.raycast.com/schemas/extension.json",
+  "name": "keyprobe",
+  "title": "KeyProbe",
+  "description": "Visually test every key on your keyboard in a native macOS panel launched from Raycast.",
+  "icon": "icon.png",
+  "author": "yuzu",
+  "license": "MIT",
+  "categories": [
+    "System",
+    "Productivity"
+  ],
+  "platforms": [
+    "macOS"
+  ],
+  "commands": [
+    {
+      "name": "open",
+      "title": "Open KeyProbe",
+      "subtitle": "KeyProbe",
+      "description": "Open the key test panel (focuses the existing panel if already open)",
+      "mode": "no-view"
+    }
+  ],
+  "dependencies": {
+    "@raycast/api": "^1.104.12"
+  },
+  "devDependencies": {
+    "@raycast/eslint-config": "^2.1.1",
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.14",
+    "eslint": "^9.0.0",
+    "prettier": "^3.8.3",
+    "typescript": "^5.6.0"
+  },
+  "scripts": {
+    "build-helper": "cd swift/keyprobe-helper && swift build -c release --scratch-path ../../.raycast-swift-build/keyprobe-helper && cp ../../.raycast-swift-build/keyprobe-helper/release/KeyProbeHelper ../../assets/KeyProbeHelper",
+    "predev": "npm run build-helper",
+    "dev": "ray develop",
+    "build": "ray build -e dist",
+    "fix-lint": "ray lint --fix",
+    "lint": "ray lint"
+  }
+}

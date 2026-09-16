@@ -1,0 +1,9 @@
+node_modules/
+dist/
+.raycast-swift-build/
+assets/KeyProbeHelper
+assets/KeyProbeHelper.sha256
+.DS_Store
+*.log
+.swiftpm/
+.build/
