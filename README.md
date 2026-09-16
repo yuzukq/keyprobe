@@ -28,11 +28,19 @@ npm run dev            # ray develop — Raycast にロードされる
 
 ## 動作確認したいこと
 
-ウィンドウを開いた状態でキーボードを一通り押し、ログを確認する：
+ウィンドウを開いた状態でキーボードを一通り押し、ログを確認する。ログの場所は Raycast の拡張機能ごとの support ディレクトリ（`environment.supportPath`）以下で、`ray develop` 中は次のコマンドで特定できる：
 
 ```bash
-tail -f /tmp/keyprobe-helper.log
+find ~/Library/Application\ Support/com.raycast.macos -maxdepth 3 -iname "keyprobe-helper.log"
 ```
+
+パスが分かったら：
+
+```bash
+tail -f "<上で見つかったパス>"
+```
+
+（過去のログには `os.tmpdir()`（macOSでは `/var/folders/.../T/` になり `/tmp` ではない）を使っていたため見つからなかった。`environment.supportPath` に切り替え済み。）
 
 特に確認したい項目：
 
@@ -43,6 +51,12 @@ tail -f /tmp/keyprobe-helper.log
 - ウィンドウにフォーカスがある状態でキーを押してもビープ音が鳴らないか
 - ⌘W でウィンドウが閉じ、ヘルパープロセスも一緒に終了するか（`pgrep -f KeyProbeHelper` で確認）
 - コマンドをもう一度実行したときに、新しいウィンドウではなく既存ウィンドウが前面に出るか
+
+## 既知の挙動（初回検証で判明）
+
+- **`keycode=... name=?` は現時点で想定通り**: v0 では修飾キーとJISキーしか名前を付けていない（`EventTap.swift` の `keyName`）。文字キー等を人間可読名にするのはレイアウトJSONの作業で対応する
+- **矢印キーやHome/End/PageUp/Downを押すと `flags` に `fn` が混ざる**: 物理Fnキーを押していなくても、macOSはこのクラスタのキーに `NX_SECONDARYFNMASK` を常時付与する仕様。バグではない
+- **Input Monitoring の許可ダイアログが出ず、システム設定にも `KeyProbeHelper` が出てこないのにイベントは取れている**: 未署名の単体バイナリとして子プロセス起動しているため、TCCがこのヘルパーの許可要求をRaycast.app自体の権限に付け替えている可能性が高い。システム設定 → プライバシーとセキュリティ → 入力監視 で **Raycast** が有効になっているか確認するとよい。もしRaycast側の許可を切ると、このヘルパーも一緒に動かなくなるはず
 
 ## 次のステップ（未実装）
 

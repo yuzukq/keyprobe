@@ -2,10 +2,12 @@ import { spawn } from "child_process";
 import { environment } from "@raycast/api";
 import path from "path";
 import fs from "fs";
-import os from "os";
 
-const PID_FILE = path.join(os.tmpdir(), "keyprobe-helper.pid");
-const LOG_FILE = path.join(os.tmpdir(), "keyprobe-helper.log");
+// supportPath is stable across runs (unlike os.tmpdir(), which on macOS
+// resolves to a per-login-session directory under /var/folders/... — not
+// the /tmp you'd expect, and not guessable ahead of time).
+const PID_FILE = path.join(environment.supportPath, "keyprobe-helper.pid");
+const LOG_FILE = path.join(environment.supportPath, "keyprobe-helper.log");
 
 function getHelperPath(): string {
   return path.join(environment.assetsPath, "KeyProbeHelper");
