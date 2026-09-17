@@ -116,6 +116,10 @@ Raycastのコマンド **"Select Keyboard Layout"**（`search-layout.tsx`）で�
 
 新しいキーボードを`tools/qmk_to_layout.py`で変換して`assets/layouts/`に置くだけで、この検索UIとRaycast側のコード変更なしに選べるようになる設計にしてある（今後QMKレジストリの他のボードを追加変換する際、Swift/TSの修正が不要になる）。
 
+**ウィンドウを開いたまま選択した場合**: ヘルパーは起動時にしか`--layout-mode`を読まないため、`search-layout.tsx`は選択時に既存ヘルパーのPIDを見て、動いていれば`stopHelper()`→`startHelper()`で再起動する（"Open KeyProbe"と同じ起動フローを再利用しているので、テスト済み状態のリセットもついでに行われる）。
+
+**ウィンドウ内の"Layout…"ボタン**: Resetボタンの隣に配置。`raycast://extensions/yuzu/keyprobe/search-layout` のdeeplinkを`NSWorkspace.shared.open()`で開き、Raycast側の検索UIを直接呼び出す。dev版（`ray develop`）のdeeplinkが実際に機能するかはGUI操作が必要なため未検証 — 動かない場合はRaycastの検索から直接 "Select Keyboard Layout" を呼ぶ形にフォールバックしてほしい。
+
 ### まだ対応していないもの
 
 - VIA/Remapの定義+キーマップのペア（KLE累積座標のパース）からの変換は未実装。QMK直下のファイルで足りるボードから優先して対応している

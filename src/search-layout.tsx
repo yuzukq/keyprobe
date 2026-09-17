@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import fs from "fs";
 import path from "path";
+import { readPidOrNull, stopHelper, startHelper } from "./helper";
 
 const OVERRIDE_KEY = "selectedLayout";
 
@@ -57,7 +58,25 @@ export default function Command() {
 
   async function select(stem: string) {
     await LocalStorage.setItem(OVERRIDE_KEY, stem);
-    await showHUD(`KeyProbe layout set: ${stem}`);
+
+    // The helper only reads --layout-mode at startup, so if a window is
+    // already open, changing the selection alone wouldn't do anything
+    // until the user closed and reopened it by hand — restart it here
+    // instead, reusing the same start/stop flow "Open KeyProbe" uses (and
+    // getting the fresh-state reset that a new helper start already gives
+    // for free, per Q10).
+    const existingPid = readPidOrNull();
+    if (existingPid !== null) {
+      await stopHelper(existingPid);
+      const result = await startHelper(stem);
+      if (!result.success) {
+        await showHUD(`⚠️ ${result.error}`);
+        return;
+      }
+      await showHUD(`KeyProbe layout set: ${stem}（再起動しました）`);
+    } else {
+      await showHUD(`KeyProbe layout set: ${stem}`);
+    }
     await popToRoot();
   }
 

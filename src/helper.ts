@@ -130,3 +130,18 @@ export async function startHelper(layoutMode: string): Promise<{
 export function readPidOrNull(): number | null {
   return readPid();
 }
+
+// Used by search-layout.tsx to restart an already-open window on a new
+// layout — the helper only reads --layout-mode at startup, so changing
+// the selection while it's running has no effect until it's relaunched.
+export async function stopHelper(pid: number): Promise<void> {
+  try {
+    process.kill(pid, "SIGTERM");
+  } catch {
+    // already gone
+  }
+  for (let attempt = 0; attempt < 30; attempt++) {
+    if (readPid() === null) return;
+    await new Promise((r) => setTimeout(r, 100));
+  }
+}

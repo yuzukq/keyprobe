@@ -77,7 +77,7 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         unmappedLabel.lineBreakMode = .byTruncatingTail
         unmappedLabel.frame = NSRect(
             x: padding, y: contentSize.height - toolbarHeight - padding / 2,
-            width: boardWidth - 90, height: 20
+            width: boardWidth - 200, height: 20
         )
         unmappedLabel.autoresizingMask = [.width]
         contentView.addSubview(unmappedLabel)
@@ -96,6 +96,18 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         resetButton.autoresizingMask = [.minXMargin]
         contentView.addSubview(resetButton)
 
+        // Opens the "Select Keyboard Layout" Raycast command via deeplink
+        // instead of duplicating its search UI natively. search-layout.tsx
+        // restarts this window itself once a new layout is picked there.
+        let layoutButton = NSButton(title: "Layout…", target: self, action: #selector(layoutTapped))
+        layoutButton.bezelStyle = .rounded
+        layoutButton.frame = NSRect(
+            x: contentSize.width - 80 - 8 - 100 - padding, y: contentSize.height - toolbarHeight - padding / 2,
+            width: 100, height: 24
+        )
+        layoutButton.autoresizingMask = [.minXMargin]
+        contentView.addSubview(layoutButton)
+
         window.contentView = contentView
         window.center()
         window.makeKeyAndOrderFront(nil)
@@ -106,6 +118,11 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
 
     @objc private func resetTapped() {
         keyboardView?.resetAll()
+    }
+
+    @objc private func layoutTapped() {
+        guard let url = URL(string: "raycast://extensions/yuzu/keyprobe/search-layout") else { return }
+        NSWorkspace.shared.open(url)
     }
 
     func handleDown(keycode: Int64) {
