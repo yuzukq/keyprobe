@@ -71,8 +71,42 @@ tail -f "<上で見つかったパス>"
 - **矢印キーやHome/End/PageUp/Downを押すと `flags` に `fn` が混ざる**: 物理Fnキーを押していなくても、macOSはこのクラスタのキーに `NX_SECONDARYFNMASK` を常時付与する仕様。バグではない
 - **Input Monitoring の許可ダイアログが出ず、システム設定にも `KeyProbeHelper` が出てこないのにイベントは取れている**: 未署名の単体バイナリとして子プロセス起動しているため、TCCがこのヘルパーの許可要求をRaycast.app自体の権限に付け替えている可能性が高い。システム設定 → プライバシーとセキュリティ → 入力監視 で **Raycast** が有効になっているか確認するとよい。もしRaycast側の許可を切ると、このヘルパーも一緒に動かなくなるはず
 
+## 自作キーボードレイアウトの取り込み（`7sKB (Salicylic)` を実例に）
+
+VIA/QMK系のキーボードは「形状（キーボード定義）」と「今どのキーに何を割り当てているか（キーマップ）」を別々に管理している。試しに触ったファイルで分かった内訳：
+
+- **QMKの`keyboard.json`**（`keyboards/<vendor>/<board>/.../keyboard.json`）: `layouts.LAYOUT.layout`に`{matrix:[row,col], x, y, w, h}`の絶対座標配列。KLEの累積計算が不要で最も扱いやすい
+- **QMKの`keymap.c`**: `keymaps[][MATRIX_ROWS][MATRIX_COLS] = { [_LAYERNAME] = LAYOUT(KC_A, KC_B, ...) }`。`LAYOUT()`マクロの引数の並び順は`keyboard.json`の`layout`配列と1:1で対応する設計になっている
+- **VIA/Remapの「定義」JSON**（`og60.json`等）: KLEの生データ形式（累積x/y、レイアウトオプションによる同一matrix位置の重複あり）。今回はQMK側のファイルの方が単純だったので、まずこちらから対応した
+- **VIA/Remapの「キーマップ」エクスポート**（`7skb_salicylic.json`等）: `layers[layer][row * cols + col]`というフラット配列（KLEの出現順ではなく行列の単純な掛け算、これは実機ファイルで検証して確定した）
+
+v1では「QMKの`keyboard.json` + `keymap.c`」の組から変換する経路を実装した（`tools/qmk_to_layout.py`、開発時専用のスクリプトで拡張機能には同梱しない）。使い方：
+
+```bash
+python3 tools/qmk_to_layout.py \
+  --keyboard-json <qmk_firmware>/keyboards/<vendor>/<board>/.../keyboard.json \
+  --keymap-c <qmk_firmware>/keyboards/<vendor>/<board>/keymaps/<name>/keymap.c \
+  --layer 0 \
+  --name "表示名" \
+  --out assets/layouts/<board>.json
+```
+
+- **レイヤーは0（ベースレイヤー）のみ扱う**: QMKのレイヤーはファームウェア内部の状態で、単純に押したときにOSへ届くmacOSキーコードには影響しないため
+- **ラップされたキーコード**（`MT(mod,KC_X)`/`LT(n,KC_X)`）は tap側のキーコードだけを抽出。`MO()`/`TG()`等のレイヤー切り替えや`XXXXXXX`/`_______`は「OSに何も送らない」ため`keycode: null`の**テスト不可能スロット**として描画（4つ目の視覚状態。誤って壊れたキーと判定しないための区別）
+- **1つのkeycodeに複数の物理キーが割り当たっているケース**にも対応（今回の7sKBは分割キーボードで、親指クラスタの4キーが全部スペースを送る設計だった。OS側からは区別がつかないので、該当キー全部を同時にハイライトする）
+- QMKのCombo機能（このボードでは F+D→英数、J+K→かな）はOSからは通常のkeyDownと区別がつかないため、変換時は考慮不要（実機ログで確認済み）
+
+新しいプロファイルはRaycastの `Keyboard Layout` 設定に追加するだけで選択可能（`LayoutSelector.swift`に`case`を1行足すだけ）。
+
+### まだ対応していないもの
+
+- VIA/Remapの定義+キーマップのペア（KLE累積座標のパース）からの変換は未実装。QMK直下のファイルで足りるボードから優先して対応している
+- レイアウトオプション（分割/ANSI・ISOの切り替え等、`og60.json`にあった`labels`機能）は非対応。デフォルト構成のみ
+- QMKフォーク内の他のキーボードを検索して選べるUI（当初案の(B)）は未着手。まずは(A)のQMKファイル変換パスを1台で通したところ
+
 ## 次のステップ（未実装）
 
 - 実機でのhome行・半角全角キーの位置検証（上記「既知の制約」）とJSONの微調整
-- 将来: VIA/QMK の matrix.json + キーマップからレイアウトJSONを生成する変換ツール
+- QMKフォーク内の他のキーボード（有名どころ）もいくつか変換して`tools/qmk_to_layout.py`を育てる
+- 将来: QMKフォークを検索可能にして選べるUI、VIA/Remapの定義+キーマップのペアからの変換
 - (任意) Store公開に向けた universal binary ビルド・アイコンの本番デザイン化

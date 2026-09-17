@@ -9,7 +9,11 @@ final class KeyboardView: NSView {
     // Named boardLayout, not layout: NSView already declares `func layout()`
     // for its own layout pass, and a stored property named `layout` shadows it.
     private let boardLayout: Layout
-    private var viewsByKeycode: [Int: KeyView] = [:]
+    // A keycode can map to more than one KeyView on a custom board — e.g. a
+    // split keyboard's symmetric thumb clusters both sending space. The OS
+    // genuinely can't tell which physical key produced the event, so all
+    // slots sharing a keycode highlight together rather than picking one.
+    private var viewsByKeycode: [Int: [KeyView]] = [:]
     private let unmappedLabel: NSTextField
 
     init(layout: Layout, unmappedLabel: NSTextField) {
@@ -28,30 +32,32 @@ final class KeyboardView: NSView {
             )
             let keyView = KeyView(definition: def, frame: rect)
             addSubview(keyView)
-            viewsByKeycode[def.keycode] = keyView
+            if let keycode = def.keycode {
+                viewsByKeycode[keycode, default: []].append(keyView)
+            }
         }
     }
 
     required init?(coder: NSCoder) { fatalError("init(coder:) has not been implemented") }
 
     func handleDown(keycode: Int64) {
-        guard let view = viewsByKeycode[Int(keycode)] else {
+        guard let views = viewsByKeycode[Int(keycode)] else {
             unmappedLabel.stringValue = "Unmapped key: \(KeyNames.name(for: keycode)) (keycode \(keycode), not on this layout)"
             return
         }
-        view.set(.pressed)
+        for view in views { view.set(.pressed) }
     }
 
     func handleUp(keycode: Int64) {
-        guard let view = viewsByKeycode[Int(keycode)] else { return }
-        view.set(.tested)
+        guard let views = viewsByKeycode[Int(keycode)] else { return }
+        for view in views { view.set(.tested) }
     }
 
     /// Manual reset (Q10) — window-open auto-reset is just "start a fresh helper",
     /// since state lives only in this in-memory view tree.
     func resetAll() {
-        for view in viewsByKeycode.values {
-            view.resetToUntested()
+        for views in viewsByKeycode.values {
+            for view in views { view.resetToUntested() }
         }
         unmappedLabel.stringValue = ""
     }

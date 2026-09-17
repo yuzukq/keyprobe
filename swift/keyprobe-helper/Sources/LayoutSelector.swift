@@ -22,6 +22,8 @@ enum LayoutSelector {
             file = "jis.json"
         case "iso":
             file = "iso.json"
+        case "7skb":
+            file = "7skb.json"
         default:
             file = detectHardwareLayoutFile()
         }

@@ -34,7 +34,8 @@
         { "title": "Auto-detect", "value": "auto" },
         { "title": "ANSI", "value": "ansi" },
         { "title": "JIS", "value": "jis" },
-        { "title": "ISO", "value": "iso" }
+        { "title": "ISO", "value": "iso" },
+        { "title": "7sKB (Salicylic)", "value": "7skb" }
       ]
     }
   ],
