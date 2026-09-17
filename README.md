@@ -136,11 +136,37 @@ Planck / Preonic / Corne(crkbd) / Iris / Let's Split / Helix / KBD67 / DZ60 / Li
 - **ボード独自キーコード名**（`enum custom_keycodes`経由、Kyria/Orthodoxの`NAV`/`SYM`/`CTL_ESC`等）は静的解析だけでは実際の挙動が分からないため、正直に「テスト不可能」のまま未解決扱いにしている
 - `KC_PSCR`→F13はApple公式のPC互換マッピングに基づく推測（未検証）、Clueboard 66の`KC_INT4`/`KC_INT5`は確証が持てず未解決のまま残した
 
+### 第2弾: 個別指名されたボード17台 + 外部リポジトリ2台
+
+サリチル酸さんの他のボード全13台（7sPlus/Ajisai74/ErgoArrows/Getta25/Guide68/Jisplit89/Nafuda/Naked48/Naked60/Naked64/NKNL7EN/NKNL7JP/Setta21）、Keychron Q11、HHKB(ANSI/JP)、Silakka 54をQMKフォーク直下から変換。加えて、Keyball44とKiller Whale(Solo)は`qmk_firmware`にマージされていない独立リポジトリだったため、`gh api`でファイルを直接取得して変換した。
+
+追加で必要になった変換ロジック:
+
+- **数値パッド**（Getta25/Setta21）、**JIS波括弧**（Naked64）
+- **QMKの`keymap_japanese.h`のJP_\*エイリアス**: 名前から類推せず、QMK公式ヘッダファイルを直接取得して正確な対応表を作った（過去に`keycode 10`を思い込みで割り当てて実は違った、という経験があったため）。`JP_KANA`→`KC_INT2`→macOS keycode 104、`JP_YEN`→`KC_INT3`→93、など。USB HIDの"InternationalN"仕様（International1=Ro, 2=Kana, 3=Yen, 4=Henkan, 5=Muhenkan）とも整合を確認した
+- **Keychronのmacモード用エイリアス**（`KC_LCMD`/`KC_RCMD`/`KC_LOPT`）とメディアキー各種（音量/輝度/再生など、consumer control系のため元々「テスト不可能」扱い）
+- **汎用Shiftラップ**`S(KC_X)`（Keyball44の`&`キー等）にも対応
+
+**Killer Whaleは変換を見送った**: ソースの`keyboard.json`を見ると、全キーの座標が`x:0, y:0`のまま（実質未設定）だった。3D積層のアクリル支柱構造という特殊な物理形状のため、素直な2D KLE座標系に落とし込めていないのだと思われる。matrix位置から機械的にグリッドを合成することもできるが、実際の並びとかけ離れた紛らわしい表示になる（例: 1〜5キーが行0、ESCが行1、Q/Wが混在した行、など物理形状に起因する不規則な並び）ため、無理に表示するより見送る方が誠実と判断した。
+
+**対応できなかったもの**（`README`より詳しい経緯は会話ログ参照）:
+
+- **moNa2・cornix・roBa・Kinesis Advantage 360 はQMKではなくZMKファームウェア**を採用しており、このツールの変換パイプライン（QMKの`keyboard.json`/`keymap.c`/`keymap.json`前提）では対応できない。ZMKはdevicetree形式の`.keymap`/`.overlay`という全く別の設定形式を使うため、対応するには別途ZMK用パーサーの新規開発が必要
+- **Lofree・Realforceは実質入手不可**: Lofreeは「QMK/VIA対応」を謳いながら公式にソースを公開しておらず（QMK公式issueでも問題視されている）、RealforceはTopre方式で基本的に非対応。ローカルにあった`viktus/*_topre`系はRealforce純正ではなく、Topre軸を使うアフターマーケット基板
+
+### 汎用フォームファクタ2種
+
+QMK/VIA対応ではない一般的なキーボードを使っている人向けに、`ansi.json`と同じ手法で手作業構築:
+
+- **60% (ANSI)** (`ansi60.json`, 60キー): Escキーがグレイブ/チルダキーの物理位置を占める現行の一般的な60%配列（多くの実機で`Fn+Esc`が`` ` ``/`~`になる）を採用
+- **TKL (ANSI)** (`ansi_tkl.json`, 83キー): 既存`ansi.json`のF行・メインブロックはそのまま流用し、Insert/Home/PageUp・Delete/End/PageDownのナビクラスタと矢印クラスタを追加。PrintScreen/ScrollLock/Pauseは未確証キーコードの積み増しを避けるため省略
+
 ### まだ対応していないもの
 
 - VIA/Remapの定義+キーマップのペア（KLE累積座標のパース）からの変換は未実装。QMK直下のファイルで足りるボードから優先して対応している
 - レイアウトオプション（分割/ANSI・ISOの切り替え等、`og60.json`にあった`labels`機能）は非対応。デフォルト構成のみ
-- Ergodox EZ・DZ60RGB・BDN9・Adelaisは今回のバッチで変換に失敗し保留（`tools/batch_convert.py`のコメント参照）。プレーンな`LAYOUT`マクロが keyboard.json 側で宣言されていない/コミュニティレイアウトの命名規則に合わないケースで、個別調査が必要
+- Ergodox EZ・DZ60RGB・BDN9・Adelaisは変換に失敗し保留（`tools/batch_convert.py`のコメント参照）。プレーンな`LAYOUT`マクロが keyboard.json 側で宣言されていない/コミュニティレイアウトの命名規則に合わないケースで、個別調査が必要
+- **ZMKファームウェア対応**（moNa2/cornix/roBa/Kinesis Advantage360等）は未着手。QMKとは別の設定形式のため、新規パーサーの開発判断待ち
 - QMKレジストリ全体（1000以上のベンダーディレクトリ）の完全網羅は保留。検索UIができたので、今後は好きなタイミングで数台ずつ`tools/qmk_to_layout.py`にかけて`assets/layouts/`に追加していけばよい
 
 ## 次のステップ（未実装）

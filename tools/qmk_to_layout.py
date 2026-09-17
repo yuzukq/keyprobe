@@ -148,6 +148,9 @@ QMK_TO_MACOS = {
     "KC_MPLY": None, "KC_MNXT": None, "KC_MPRV": None,
     "KC_VOLU": None, "KC_VOLD": None, "KC_BRIU": None, "KC_BRID": None,
     "KC_MCTL": None, "KC_LPAD": None,
+    # Mouse buttons / trackball mode toggles (common on Keyball-family
+    # boards) — clicks and scroll-mode switches aren't keyDown/keyUp either.
+    "MS_BTN1": None, "MS_BTN2": None, "MS_BTN3": None, "MOD_SCRL": None,
     "XXXXXXX": None, "_______": None, "KC_NO": None, "KC_TRNS": None,
     # Board-specific custom keycodes (via `enum custom_keycodes` +
     # process_record_user, e.g. splitkb/kyria's and orthodox's default
@@ -259,7 +262,7 @@ def resolve_keycode(token):
     # a bare press still taps the wrapped key, so the same reasoning as
     # MT()/LT() applies: show what a simple press produces.
     modifier_wrap = re.match(
-        r"^(?:LCTL|LSFT|LALT|LGUI|RCTL|RSFT|RALT|RGUI|LCAG|LSA|LCA|SGUI|HYPR|MEH)\((\w+)\)$",
+        r"^(?:S|LCTL|LSFT|LALT|LGUI|RCTL|RSFT|RALT|RGUI|LCAG|LSA|LCA|SGUI|HYPR|MEH)\((\w+)\)$",
         token,
     )
     if modifier_wrap:
