@@ -31,6 +31,13 @@ final class KeyView: NSView {
         label.font = NSFont.systemFont(ofSize: min(12, frame.height * 0.32), weight: .medium)
         label.alignment = .center
         label.textColor = definition.keycode == nil ? .tertiaryLabelColor : .labelColor
+        // Imported custom-keyboard labels vary in length (e.g. "Mission
+        // Control") — truncate rather than overflow the key's bounds, since
+        // an unverified default label like "escape" instead of "esc" is
+        // exactly the kind of thing a converted board can produce.
+        label.lineBreakMode = .byTruncatingTail
+        label.cell?.truncatesLastVisibleLine = true
+        label.maximumNumberOfLines = 1
         label.translatesAutoresizingMaskIntoConstraints = false
         addSubview(label)
         NSLayoutConstraint.activate([

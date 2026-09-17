@@ -52,7 +52,7 @@ QMK_TO_MACOS = {
     "KC_QUOT": (39, "'"), "KC_COMM": (43, ","), "KC_DOT": (47, "."),
     "KC_SLSH": (44, "/"), "KC_GRV": (50, "`"),
     "KC_TAB": (48, "tab"), "KC_SPC": (49, "space"), "KC_ENT": (36, "return"),
-    "KC_BSPC": (51, "delete"), "KC_ESC": (53, "escape"),
+    "KC_BSPC": (51, "delete"), "KC_ESC": (53, "esc"),
     "KC_LCTL": (59, "control"), "KC_RCTL": (62, "control"),
     "KC_LSFT": (56, "shift"), "KC_RSFT": (60, "shift"),
     "KC_LALT": (58, "option"), "KC_RALT": (61, "option"),

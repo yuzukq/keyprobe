@@ -10,7 +10,7 @@
       "y": 0,
       "w": 1.0,
       "h": 1.0,
-      "label": "escape"
+      "label": "esc"
     },
     {
       "keycode": 18,
