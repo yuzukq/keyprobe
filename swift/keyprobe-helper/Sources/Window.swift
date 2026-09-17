@@ -1,9 +1,9 @@
 import AppKit
 
-/// Swallows all key input so an unhandled keyDown never triggers NSBeep
-/// (implementation review #4). The event tap sees every keystroke
-/// independently of the responder chain, so nothing needs to reach here
-/// for the visualization to work — this view's only job is to stay silent.
+/// Swallows all key input so an unhandled keyDown never triggers NSBeep.
+/// The event tap sees every keystroke independently of the responder
+/// chain, so nothing needs to reach here for the visualization to work —
+/// this view's only job is to stay silent.
 private final class SwallowingContentView: NSView {
     override var acceptsFirstResponder: Bool { true }
     override func keyDown(with event: NSEvent) {}
@@ -13,7 +13,7 @@ private final class SwallowingContentView: NSView {
 
 /// Handles ⌘W (close) / ⌘Q (quit) directly. Needed because `.accessory`
 /// activation policy ships no menu bar, so there's no default menu item to
-/// wire these to (implementation review #3).
+/// wire these to.
 private final class KeyProbeWindow: NSWindow {
     override func performKeyEquivalent(with event: NSEvent) -> Bool {
         if event.modifierFlags.contains(.command) {
@@ -33,8 +33,8 @@ private final class KeyProbeWindow: NSWindow {
 }
 
 /// Owns the window, the keyboard board, and the toolbar (reset button +
-/// unmapped-key readout). Closing the window quits the whole helper
-/// (settled: Q8 — no background persistence once the window goes away).
+/// unmapped-key readout). Closing the window quits the whole helper —
+/// there's no background persistence once the window goes away.
 final class KeyProbeWindowController: NSObject, NSWindowDelegate {
     static let shared = KeyProbeWindowController()
 

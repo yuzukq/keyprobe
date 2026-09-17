@@ -11,7 +11,8 @@ struct KeyActivity {
     let logLine: String
 }
 
-/// Captures global keyboard events via CGEventTap (listen-only — settled: Q5).
+/// Captures global keyboard events via CGEventTap in listen-only mode —
+/// this tool observes keystrokes, it never intercepts or blocks them.
 class EventTap {
     static let shared = EventTap()
 

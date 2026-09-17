@@ -77,7 +77,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 let appDelegate = AppDelegate()
 app.delegate = appDelegate
 
-// SIGUSR1: an already-running instance was asked to open again -> focus (settled: Q11).
+// SIGUSR1: an already-running instance was asked to open again -> focus.
 let sigUsr1 = DispatchSource.makeSignalSource(signal: SIGUSR1, queue: .main)
 sigUsr1.setEventHandler {
     log("Focus requested via SIGUSR1")

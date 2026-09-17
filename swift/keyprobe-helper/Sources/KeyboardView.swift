@@ -1,10 +1,9 @@
 import AppKit
 
 /// Renders a Layout as a grid of KeyViews and routes keycode events to them.
-/// Also settled in the design review: keys with no slot on the board
-/// (media keys, unrecognized HID codes — Q7) surface as text instead of
-/// being silently dropped, since telling "no event" apart from "dead key"
-/// is exactly what this tool exists to do (implementation review #10).
+/// Keys with no slot on the board (media keys, unrecognized HID codes)
+/// surface as text instead of being silently dropped, since telling
+/// "no event" apart from "dead key" is exactly what this tool is for.
 final class KeyboardView: NSView {
     // Named boardLayout, not layout: NSView already declares `func layout()`
     // for its own layout pass, and a stored property named `layout` shadows it.
@@ -53,8 +52,6 @@ final class KeyboardView: NSView {
         for view in views { view.set(.tested) }
     }
 
-    /// Manual reset (Q10) — window-open auto-reset is just "start a fresh helper",
-    /// since state lives only in this in-memory view tree.
     func resetAll() {
         for views in viewsByKeycode.values {
             for view in views { view.resetToUntested() }

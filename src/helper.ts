@@ -42,7 +42,7 @@ export function isRunning(): boolean {
 }
 
 // Signals the already-running helper to bring its window to the front,
-// instead of spawning a second instance (settled: Q11).
+// instead of spawning a second instance.
 export function focusExisting(pid: number): void {
   process.kill(pid, "SIGUSR1");
 }

@@ -62,9 +62,7 @@ export default function Command() {
     // The helper only reads --layout-mode at startup, so if a window is
     // already open, changing the selection alone wouldn't do anything
     // until the user closed and reopened it by hand — restart it here
-    // instead, reusing the same start/stop flow "Open KeyProbe" uses (and
-    // getting the fresh-state reset that a new helper start already gives
-    // for free, per Q10).
+    // instead, reusing the same start/stop flow "Open KeyProbe" uses.
     const existingPid = readPidOrNull();
     if (existingPid !== null) {
       await stopHelper(existingPid);

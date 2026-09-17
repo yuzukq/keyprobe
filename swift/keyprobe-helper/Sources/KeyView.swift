@@ -1,11 +1,10 @@
 import AppKit
 
-/// Three states settled in the design review (Q3): a key starts untested,
-/// turns "pressed" for as long as it's held, and once released becomes
-/// "tested" until the board is reset. `nonTestable` is a fourth, permanent
-/// state for slots with no OS-visible keycode at all (QMK layer keys,
-/// unbound positions) — imported custom-keyboard layouts need it so a
-/// layer key doesn't read as a dead key.
+/// A key starts untested, turns "pressed" for as long as it's held, and
+/// once released becomes "tested" until the board is reset. `nonTestable`
+/// is a fourth, permanent state for slots with no OS-visible keycode at
+/// all (layer keys, unbound positions) — imported custom-keyboard layouts
+/// need it so a layer key doesn't read as a dead key.
 enum KeyState {
     case untested
     case pressed

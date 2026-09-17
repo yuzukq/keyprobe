@@ -2,8 +2,6 @@ node_modules/
 dist/
 raycast-env.d.ts
 .raycast-swift-build/
-assets/KeyProbeHelper
-assets/KeyProbeHelper.sha256
 .DS_Store
 *.log
 .swiftpm/
