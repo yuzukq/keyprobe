@@ -71,9 +71,22 @@ QMK_TO_MACOS = {
     "KC_RO": (94, "_"), "KC_JYEN": (93, "¥"),
     "KC_LNG1": (104, "かな"), "KC_KANA": (104, "かな"),
     "KC_LNG2": (102, "英数"), "KC_EISU": (102, "英数"),
+    # PC "Application"/context-menu key -> kVK_Menu, confirmed against a
+    # primary keycode reference (not yet cross-checked on real hardware).
+    "KC_APP": (110, "menu"),
+    # ISO-only, ANSI/QMK naming for the same two keys our iso.json already
+    # uses — matching Sauce's kVK_ISO_Section for the bottom-left key, and
+    # the same "reuse the shared home-row slot" best-effort call already
+    # flagged as unverified in assets/layouts/jis.json/iso.json.
+    "KC_NUBS": (10, "§"), "KC_NUHS": (42, "\\"),
+    # QMK's "grave escape": sends Escape on a bare tap, but Grave/~ if
+    # Shift/Cmd is held at release. We only model the bare-tap case (what a
+    # key tester's "press this key" check actually exercises); the modified
+    # cases aren't representable as a single static macOS keycode.
+    "QK_GESC": (53, "esc"), "KC_GESC": (53, "esc"),
     # No stable macOS virtual keycode / not a real keyDown (consumer control,
     # or JIS keys Apple's own keyboards don't have a case for):
-    "KC_STOP": None, "KC_MHEN": None, "KC_HENK": None,
+    "KC_STOP": None, "KC_MHEN": None, "KC_HENK": None, "KC_MUTE": None,
     "XXXXXXX": None, "_______": None, "KC_NO": None, "KC_TRNS": None,
 }
 
@@ -120,10 +133,11 @@ def split_top_level_commas(arg_text):
 
 
 def resolve_keycode(token):
-    """Returns (macos_keycode_or_None, label). Unwraps MT()/LT() to their
-    tap keycode; anything else unrecognized is left labeled but untestable
-    so it's visible in the output for manual review rather than silently
-    dropped."""
+    """Returns (macos_keycode_or_None, label, recognized). `recognized`
+    is False only when nothing about the token was understood at all
+    (unlike e.g. a deliberately-None dict entry or a matched layer-switch
+    call, which are handled on purpose) — that's the signal the caller
+    uses to warn about tokens worth reviewing by hand."""
     inner_call = re.match(r"^(MT|LT)\([^,]+,\s*(\w+)\)$", token)
     if inner_call:
         token = inner_call.group(2)
@@ -131,17 +145,20 @@ def resolve_keycode(token):
     if token in QMK_TO_MACOS:
         entry = QMK_TO_MACOS[token]
         if entry is None:
-            return None, token
+            return None, token, True
         keycode, label = entry
-        return keycode, label
+        return keycode, label, True
 
-    # Layer-switch functions (MO/TG/TO/OSL/DF over a layer name) — no OS
-    # keycode, but "Fn" reads better than the raw "MO(_FN)" token.
+    # Layer-switch functions (MO/TG/TO/OSL/DF over a layer name or number)
+    # — no OS keycode, but "Fn" / "Layer 1" reads better than the raw
+    # "MO(_FN)" / "MO(1)" token.
     layer_call = re.match(r"^(?:MO|TG|TO|OSL|DF)\(_?(\w+)\)$", token)
     if layer_call:
-        return None, layer_call.group(1).replace("_", " ").title()
+        name = layer_call.group(1)
+        label = f"Layer {name}" if name.isdigit() else name.replace("_", " ").title()
+        return None, label, True
 
-    return None, token
+    return None, token, False
 
 
 def main():
@@ -173,8 +190,8 @@ def main():
     keys = []
     unresolved = []
     for geo, token in zip(geometry, tokens):
-        keycode, label = resolve_keycode(token)
-        if keycode is None and token not in ("XXXXXXX", "_______", "KC_NO", "KC_TRNS"):
+        keycode, label, recognized = resolve_keycode(token)
+        if not recognized:
             unresolved.append(token)
         keys.append({
             "keycode": keycode,

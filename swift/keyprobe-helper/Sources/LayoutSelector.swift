@@ -24,6 +24,10 @@ enum LayoutSelector {
             file = "iso.json"
         case "7skb":
             file = "7skb.json"
+        case "tofu60":
+            file = "tofu60.json"
+        case "zoom65":
+            file = "zoom65.json"
         default:
             file = detectHardwareLayoutFile()
         }

@@ -35,7 +35,9 @@
         { "title": "ANSI", "value": "ansi" },
         { "title": "JIS", "value": "jis" },
         { "title": "ISO", "value": "iso" },
-        { "title": "7sKB (Salicylic)", "value": "7skb" }
+        { "title": "7sKB (Salicylic)", "value": "7skb" },
+        { "title": "TOFU60 (DZTECH)", "value": "tofu60" },
+        { "title": "Zoom65 (Meletrix)", "value": "zoom65" }
       ]
     }
   ],
