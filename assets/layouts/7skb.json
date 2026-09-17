@@ -10,7 +10,7 @@
       "y": 0,
       "w": 1.0,
       "h": 1.0,
-      "label": "⎋"
+      "label": "esc"
     },
     {
       "keycode": 18,
@@ -130,7 +130,7 @@
       "y": 1,
       "w": 1.5,
       "h": 1.0,
-      "label": "⇥"
+      "label": "tab"
     },
     {
       "keycode": 12,
@@ -234,7 +234,7 @@
       "y": 1,
       "w": 1.5,
       "h": 1.0,
-      "label": "⌫"
+      "label": "BS"
     },
     {
       "keycode": 59,
@@ -338,7 +338,7 @@
       "y": 2,
       "w": 2.25,
       "h": 1.0,
-      "label": "↩"
+      "label": "return"
     },
     {
       "keycode": 56,
@@ -346,7 +346,7 @@
       "y": 3,
       "w": 2.25,
       "h": 1.0,
-      "label": "⇧"
+      "label": "shift"
     },
     {
       "keycode": 6,
@@ -434,7 +434,7 @@
       "y": 3,
       "w": 1.75,
       "h": 1.0,
-      "label": "⇧"
+      "label": "shift"
     },
     {
       "keycode": null,

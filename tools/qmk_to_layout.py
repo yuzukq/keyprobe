@@ -51,17 +51,19 @@ QMK_TO_MACOS = {
     "KC_RBRC": (30, "]"), "KC_BSLS": (42, "\\"), "KC_SCLN": (41, ";"),
     "KC_QUOT": (39, "'"), "KC_COMM": (43, ","), "KC_DOT": (47, "."),
     "KC_SLSH": (44, "/"), "KC_GRV": (50, "`"),
-    # Symbols, not words, for keys that are usually only 1u wide — matches
-    # both real Mac keycap conventions and what KeyRaycast (the closest
-    # prior art we found — see the design discussion) already uses for the
-    # same keycodes in its own overlay.
-    "KC_TAB": (48, "⇥"), "KC_SPC": (49, "space"), "KC_ENT": (36, "↩"),
-    "KC_BSPC": (51, "⌫"), "KC_ESC": (53, "⎋"),
+    # ⌘⌃⌥ only — those three are the ones actually printed on real Mac
+    # keyboards, so they're instantly recognizable. Everything else (shift,
+    # return, tab, caps lock, delete) is text: no equally-familiar symbol,
+    # and each fits its key's actual width fine as text (per user feedback —
+    # a previous pass over-applied symbols, e.g. ⎋ for a 1u esc key that
+    # already fit "esc" as text just fine).
+    "KC_TAB": (48, "tab"), "KC_SPC": (49, "space"), "KC_ENT": (36, "return"),
+    "KC_BSPC": (51, "BS"), "KC_ESC": (53, "esc"),
     "KC_LCTL": (59, "⌃"), "KC_RCTL": (62, "⌃"),
-    "KC_LSFT": (56, "⇧"), "KC_RSFT": (60, "⇧"),
+    "KC_LSFT": (56, "shift"), "KC_RSFT": (60, "shift"),
     "KC_LALT": (58, "⌥"), "KC_RALT": (61, "⌥"),
     "KC_LGUI": (55, "⌘"), "KC_RGUI": (54, "⌘"),
-    "KC_CAPS": (57, "⇪"),
+    "KC_CAPS": (57, "caps lock"),
     "KC_F1": (122, "F1"), "KC_F2": (120, "F2"), "KC_F3": (99, "F3"),
     "KC_F4": (118, "F4"), "KC_F5": (96, "F5"), "KC_F6": (97, "F6"),
     "KC_F7": (98, "F7"), "KC_F8": (100, "F8"), "KC_F9": (101, "F9"),
@@ -70,7 +72,7 @@ QMK_TO_MACOS = {
     "KC_RGHT": (124, "→"), "KC_RIGHT": (124, "→"),
     "KC_HOME": (115, "↖"), "KC_END": (119, "↘"),
     "KC_PGUP": (116, "⇞"), "KC_PGDN": (121, "⇟"),
-    "KC_DEL": (117, "⌦"), "KC_INS": (114, "help"),
+    "KC_DEL": (117, "Del"), "KC_INS": (114, "help"),
     # JIS-only (confirmed against real hardware log earlier in this project)
     "KC_RO": (94, "_"), "KC_JYEN": (93, "¥"),
     "KC_LNG1": (104, "かな"), "KC_KANA": (104, "かな"),
@@ -87,7 +89,7 @@ QMK_TO_MACOS = {
     # Shift/Cmd is held at release. We only model the bare-tap case (what a
     # key tester's "press this key" check actually exercises); the modified
     # cases aren't representable as a single static macOS keycode.
-    "QK_GESC": (53, "⎋"), "KC_GESC": (53, "⎋"),
+    "QK_GESC": (53, "esc"), "KC_GESC": (53, "esc"),
     # No stable macOS virtual keycode / not a real keyDown (consumer control,
     # or JIS keys Apple's own keyboards don't have a case for):
     "KC_STOP": None, "KC_MHEN": None, "KC_HENK": None, "KC_MUTE": None,
