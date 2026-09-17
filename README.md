@@ -96,11 +96,13 @@ v1では「QMKの`keyboard.json` + `keymap.c`」の組から変換する経路�
 ```bash
 python3 tools/qmk_to_layout.py \
   --keyboard-json <qmk_firmware>/keyboards/<vendor>/<board>/.../keyboard.json \
-  --keymap-c <qmk_firmware>/keyboards/<vendor>/<board>/keymaps/<name>/keymap.c \
+  --keymap <qmk_firmware>/keyboards/<vendor>/<board>/keymaps/<name>/keymap.c  # or keymap.json \
   --layer 0 \
   --name "表示名" \
   --out assets/layouts/<board>.json
 ```
+
+`--keymap`は新形式の`keymap.json`（`{"layout": "LAYOUT_NAME", "layers": [[...]]}`、C構文解析が不要でこちらの方が単純）にも対応。`--layout-name`を省略した場合、`keymap.json`なら自身の`layout`フィールドを、`keymap.c`なら`LAYOUT`をデフォルトにする。
 
 - **レイヤーは0（ベースレイヤー）のみ扱う**: QMKのレイヤーはファームウェア内部の状態で、単純に押したときにOSへ届くmacOSキーコードには影響しないため
 - **ラップされたキーコード**（`MT(mod,KC_X)`/`LT(n,KC_X)`）は tap側のキーコードだけを抽出。`MO()`/`TG()`等のレイヤー切り替えや`XXXXXXX`/`_______`は「OSに何も送らない」ため`keycode: null`の**テスト不可能スロット**として描画（4つ目の視覚状態。誤って壊れたキーと判定しないための区別）
@@ -118,13 +120,28 @@ Raycastのコマンド **"Select Keyboard Layout"**（`search-layout.tsx`）で�
 
 **ウィンドウを開いたまま選択した場合**: ヘルパーは起動時にしか`--layout-mode`を読まないため、`search-layout.tsx`は選択時に既存ヘルパーのPIDを見て、動いていれば`stopHelper()`→`startHelper()`で再起動する（"Open KeyProbe"と同じ起動フローを再利用しているので、テスト済み状態のリセットもついでに行われる）。
 
-**ウィンドウ内の"Layout…"ボタン**: Resetボタンの隣に配置。`raycast://extensions/yuzu/keyprobe/search-layout` のdeeplinkを`NSWorkspace.shared.open()`で開き、Raycast側の検索UIを直接呼び出す。dev版（`ray develop`）のdeeplinkが実際に機能するかはGUI操作が必要なため未検証 — 動かない場合はRaycastの検索から直接 "Select Keyboard Layout" を呼ぶ形にフォールバックしてほしい。
+**ウィンドウ内の"Layout…"ボタン**: Resetボタンの隣に配置。`raycast://extensions/yuzu/keyprobe/search-layout` のdeeplinkを`NSWorkspace.shared.open()`で開き、Raycast側の検索UIを直接呼び出す（実機で動作確認済み。初回はRaycastからコマンド実行の許可ダイアログが出る）。
+
+### QMKレジストリの有名どころ23台を一括変換
+
+「有名かどうか」を勘や手作業のvendor選別ではなく、**qmk_firmware全履歴でそのボードのディレクトリに実際に行われたコミット数**（個人キーマップのPR数だと自作/分割系の実オーナーがアップストリームせずローカル運用しがちで過小評価してしまうため、その代わりの指標として採用）で機械的にランキングし、上位30件から実際に`keyboard.json`が存在するもの中心に選定・変換した（`tools/batch_convert.py`）。
+
+Planck / Preonic / Corne(crkbd) / Iris / Let's Split / Helix / KBD67 / DZ60 / Lily58 / Kyria / GMMK Pro / Atreus / Orthodox / Quefrency / Nyquist / DZ65RGB / GH60 Satan / Tada68 / Clueboard 66 / Sofle / Levinson / KBD6x / HS60 v2 の23台、23/23成功。
+
+変換過程で見つかった新しいパターンへの対応:
+
+- **コミュニティ共通レイアウト**: Corne(crkbd)のように、ボード自身の`keyboard.json`に`layouts`が無く、`qmk_firmware/layouts/default/<name>/info.json`という共有ジオメトリ定義を参照する構造がある（`--keyboard-json`に直接このパスを渡せば動く）
+- **レイアウト名のエイリアス**: `LAYOUT_planck_grid`が実体としては`LAYOUT_ortho_4x12`と同一、といった「キーマップ側のマクロ名とkeyboard.json側の宣言名が食い違う」ケースがあり、`--layout-name`で手動上書きして対応
+- **モディファイア単体ラップ**: `LALT(KC_GRV)`のような修飾キー付きの単発ショートカット、`CTL_T(KC_X)`のようなmod-tap省略形（`MT(MOD_LCTL,KC_X)`と同義）にも対応し、タップ側のキーコードを抽出するように変換ロジックを拡張
+- **ボード独自キーコード名**（`enum custom_keycodes`経由、Kyria/Orthodoxの`NAV`/`SYM`/`CTL_ESC`等）は静的解析だけでは実際の挙動が分からないため、正直に「テスト不可能」のまま未解決扱いにしている
+- `KC_PSCR`→F13はApple公式のPC互換マッピングに基づく推測（未検証）、Clueboard 66の`KC_INT4`/`KC_INT5`は確証が持てず未解決のまま残した
 
 ### まだ対応していないもの
 
 - VIA/Remapの定義+キーマップのペア（KLE累積座標のパース）からの変換は未実装。QMK直下のファイルで足りるボードから優先して対応している
 - レイアウトオプション（分割/ANSI・ISOの切り替え等、`og60.json`にあった`labels`機能）は非対応。デフォルト構成のみ
-- QMKレジストリ全体（1000以上のベンダーディレクトリ）を一括変換するのは保留。検索UIができたので、今後は好きなタイミングで数台ずつ`tools/qmk_to_layout.py`にかけて`assets/layouts/`に追加していけばよい
+- Ergodox EZ・DZ60RGB・BDN9・Adelaisは今回のバッチで変換に失敗し保留（`tools/batch_convert.py`のコメント参照）。プレーンな`LAYOUT`マクロが keyboard.json 側で宣言されていない/コミュニティレイアウトの命名規則に合わないケースで、個別調査が必要
+- QMKレジストリ全体（1000以上のベンダーディレクトリ）の完全網羅は保留。検索UIができたので、今後は好きなタイミングで数台ずつ`tools/qmk_to_layout.py`にかけて`assets/layouts/`に追加していけばよい
 
 ## 次のステップ（未実装）
 

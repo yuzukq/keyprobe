@@ -8,3 +8,4 @@ assets/KeyProbeHelper.sha256
 *.log
 .swiftpm/
 .build/
+__pycache__/

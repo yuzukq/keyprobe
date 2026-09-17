@@ -6,16 +6,19 @@
                     geometry, no KLE cumulative math needed:
                     layouts.<LAYOUT_NAME>.layout = [{matrix:[r,c],x,y,w,h}, ...]
 
-  --keymap-c       keyboards/<vendor>/<board>/keymaps/<name>/keymap.c
-                    — the keymaps[][MATRIX_ROWS][MATRIX_COLS] array. We only
+  --keymap         keyboards/<vendor>/<board>/keymaps/<name>/keymap.c
+                    (older style: keymaps[][MATRIX_ROWS][MATRIX_COLS] with a
+                    LAYOUT(...) macro call) OR keymap.json (newer
+                    data-driven style: {"layout": "LAYOUT_NAME",
+                    "layers": [[...]]}, no C parsing needed — the file
+                    picks its own --layout-name too). Either way we only
                     read one layer (--layer, default the first): QMK layers
                     only affect internal firmware state, not what macOS
                     keycode a *simple* press produces, so layer 0 (the
                     always-active base layer) is what a key tester should
-                    show. The LAYOUT() macro's positional argument order is
-                    defined to match keyboard.json's layout array order —
-                    that's the whole point of the macro — so we zip the two
-                    lists position-for-position.
+                    show. The keymap's positional argument order is defined
+                    to match keyboard.json's layout array order, so we zip
+                    the two lists position-for-position.
 
 This is a dev-time tool, not shipped in the extension: run it once per
 keyboard you want to add, review the output, commit the resulting JSON to
@@ -85,6 +88,27 @@ QMK_TO_MACOS = {
     # the same "reuse the shared home-row slot" best-effort call already
     # flagged as unverified in assets/layouts/jis.json/iso.json.
     "KC_NUBS": (10, "§"), "KC_NUHS": (42, "\\"),
+    # KC_INT1 is QMK's own alias for KC_RO (same HID usage, same key).
+    "KC_INT1": (94, "_"),
+    # QMK docs don't give KC_INT4/INT5 the same clear "= KC_HENK/KC_MHEN"
+    # alias treatment INT1 gets, and those two already have no confirmed
+    # macOS keycode (see KC_MHEN/KC_HENK above) — left unresolved rather
+    # than chained onto an already-unverified guess.
+    "KC_SPACE": (49, "space"),
+    # Tri-layer momentary switches (community-standard "Lower"/"Raise"
+    # naming) and RGB/EEPROM/bootloader housekeeping keys — all
+    # firmware-internal, none produce a keyDown/keyUp.
+    "TL_LOWR": (None, "Lower"), "TL_UPPR": (None, "Raise"),
+    "LOWER": (None, "Lower"), "RAISE": (None, "Raise"), "ADJUST": (None, "Adjust"),
+    "BACKLIT": None,
+    "QK_BOOT": None, "EE_CLR": None,
+    "RM_TOGG": None, "RM_NEXT": None, "RM_PREV": None,
+    "RM_HUEU": None, "RM_HUED": None, "RM_SATU": None, "RM_SATD": None,
+    "RM_VALU": None, "RM_VALD": None, "RM_SPDU": None, "RM_SPDD": None,
+    "BL_TOGG": None, "BL_STEP": None, "RGB_TOG": None, "RGB_MOD": None,
+    # PC PrintScreen -> Apple's documented PC-keyboard-compatibility mapping
+    # (unverified against real hardware, unlike the JIS/ISO entries above).
+    "KC_PSCR": (105, "F13"),
     # QMK's "grave escape": sends Escape on a bare tap, but Grave/~ if
     # Shift/Cmd is held at release. We only model the bare-tap case (what a
     # key tester's "press this key" check actually exercises); the modified
@@ -94,6 +118,13 @@ QMK_TO_MACOS = {
     # or JIS keys Apple's own keyboards don't have a case for):
     "KC_STOP": None, "KC_MHEN": None, "KC_HENK": None, "KC_MUTE": None,
     "XXXXXXX": None, "_______": None, "KC_NO": None, "KC_TRNS": None,
+    # Board-specific custom keycodes (via `enum custom_keycodes` +
+    # process_record_user, e.g. splitkb/kyria's and orthodox's default
+    # keymaps) whose actual behavior isn't visible from static parsing —
+    # left unresolved on purpose rather than guessed at. Labeled by their
+    # source name so the board is still reviewable at a glance.
+    "ALT_ENT": None, "CTL_ESC": None, "CTL_QUOT": None,
+    "FKEYS": None, "NAV": None, "SYM": None, "LS__SPC": None,
 }
 
 
@@ -101,6 +132,40 @@ def strip_c_comments(text):
     text = re.sub(r"//.*", "", text)
     text = re.sub(r"/\*.*?\*/", "", text, flags=re.DOTALL)
     return text
+
+
+def load_jsonc(path):
+    """Some keyboard.json files (e.g. splitkb/kyria's rgb_matrix.layout)
+    use // comments, which isn't strict JSON. Strip them state-machine
+    style so a `//` inside a string value (like a URL) isn't touched."""
+    text = open(path, encoding="utf-8").read()
+    out = []
+    in_string = False
+    i = 0
+    while i < len(text):
+        ch = text[i]
+        if in_string:
+            out.append(ch)
+            if ch == "\\" and i + 1 < len(text):
+                out.append(text[i + 1])
+                i += 2
+                continue
+            if ch == '"':
+                in_string = False
+            i += 1
+            continue
+        if ch == '"':
+            in_string = True
+            out.append(ch)
+            i += 1
+            continue
+        if ch == "/" and i + 1 < len(text) and text[i + 1] == "/":
+            while i < len(text) and text[i] != "\n":
+                i += 1
+            continue
+        out.append(ch)
+        i += 1
+    return json.loads("".join(out))
 
 
 def extract_layer_block(keymap_c_source, layer_index):
@@ -144,9 +209,30 @@ def resolve_keycode(token):
     (unlike e.g. a deliberately-None dict entry or a matched layer-switch
     call, which are handled on purpose) — that's the signal the caller
     uses to warn about tokens worth reviewing by hand."""
-    inner_call = re.match(r"^(MT|LT)\([^,]+,\s*(\w+)\)$", token)
-    if inner_call:
-        token = inner_call.group(2)
+    # MT(mod, KC_X) / LT(layer, KC_X): take the tap keycode (2nd arg).
+    two_arg_wrap = re.match(r"^(MT|LT)\([^,]+,\s*(\w+)\)$", token)
+    if two_arg_wrap:
+        token = two_arg_wrap.group(2)
+
+    # QMK's single-modifier mod-tap shorthands — CTL_T(KC_X) is literally
+    # defined as MT(MOD_LCTL, KC_X), same idea as MT() but pre-filled.
+    one_arg_modtap = re.match(
+        r"^(?:CTL_T|SFT_T|ALT_T|GUI_T|LCTL_T|LSFT_T|LALT_T|LGUI_T|"
+        r"RCTL_T|RSFT_T|RALT_T|RGUI_T|ALL_T|MEH_T|HYPR_T)\((\w+)\)$",
+        token,
+    )
+    if one_arg_modtap:
+        token = one_arg_modtap.group(1)
+
+    # Plain modifier-hold wrappers (LALT(KC_GRV) = hold Alt, tap Grave) —
+    # a bare press still taps the wrapped key, so the same reasoning as
+    # MT()/LT() applies: show what a simple press produces.
+    modifier_wrap = re.match(
+        r"^(?:LCTL|LSFT|LALT|LGUI|RCTL|RSFT|RALT|RGUI|LCAG|LSA|LCA|SGUI|HYPR|MEH)\((\w+)\)$",
+        token,
+    )
+    if modifier_wrap:
+        token = modifier_wrap.group(1)
 
     if token in QMK_TO_MACOS:
         entry = QMK_TO_MACOS[token]
@@ -170,27 +256,42 @@ def resolve_keycode(token):
 def main():
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     parser.add_argument("--keyboard-json", required=True)
-    parser.add_argument("--keymap-c", required=True)
-    parser.add_argument("--layout-name", default="LAYOUT", help="key under layouts.* in keyboard.json")
-    parser.add_argument("--layer", type=int, default=0, help="which LAYOUT(...) call to read (0 = first/base)")
+    parser.add_argument("--keymap", required=True, help="path to keymap.c or keymap.json")
+    parser.add_argument(
+        "--layout-name",
+        default=None,
+        help="key under layouts.* in keyboard.json (default: keymap.json's own \"layout\" field, else \"LAYOUT\")",
+    )
+    parser.add_argument("--layer", type=int, default=0, help="which layer to read (0 = first/base)")
     parser.add_argument("--name", required=True, help="name field for the output layout JSON")
     parser.add_argument("--unit", type=float, default=46.0)
     parser.add_argument("--out", required=True)
     args = parser.parse_args()
 
-    kb = json.load(open(args.keyboard_json))
-    geometry = kb["layouts"][args.layout_name]["layout"]
+    is_json_keymap = args.keymap.endswith(".json")
 
-    keymap_source = strip_c_comments(open(args.keymap_c).read())
-    arg_text = extract_layer_block(keymap_source, args.layer)
-    tokens = split_top_level_commas(arg_text)
+    layout_name = args.layout_name
+    if is_json_keymap:
+        keymap_data = load_jsonc(args.keymap)
+        tokens = keymap_data["layers"][args.layer]
+        if layout_name is None:
+            layout_name = keymap_data.get("layout", "LAYOUT")
+    else:
+        keymap_source = strip_c_comments(open(args.keymap).read())
+        arg_text = extract_layer_block(keymap_source, args.layer)
+        tokens = split_top_level_commas(arg_text)
+        if layout_name is None:
+            layout_name = "LAYOUT"
+
+    kb = load_jsonc(args.keyboard_json)
+    geometry = kb["layouts"][layout_name]["layout"]
 
     if len(tokens) != len(geometry):
         raise SystemExit(
-            f"Mismatch: keyboard.json has {len(geometry)} positions, "
-            f"layer {args.layer} of keymap.c has {len(tokens)} tokens. "
-            "Wrong --layout-name/--layer, or this board's LAYOUT macro "
-            "doesn't 1:1 match keyboard.json (check by hand)."
+            f"Mismatch: keyboard.json layout \"{layout_name}\" has {len(geometry)} positions, "
+            f"layer {args.layer} of {args.keymap} has {len(tokens)} tokens. "
+            "Wrong --layout-name/--layer, or this keymap doesn't 1:1 match "
+            "keyboard.json's layout (check by hand)."
         )
 
     keys = []
