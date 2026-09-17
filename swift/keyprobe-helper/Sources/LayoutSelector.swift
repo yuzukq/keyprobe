@@ -12,24 +12,26 @@ import Foundation
 /// JIS-only presses (英数/かな/¥/_) land in the "unmapped key" readout
 /// instead of lighting up a slot. That's why the Raycast preference can
 /// force "jis" regardless of what the hardware reports.
+///
+/// Any mode string other than the built-in ones below is treated as a
+/// layout filename stem (e.g. "zoom65" -> zoom65.json) instead of being
+/// hardcoded per-board here — search-layout.tsx enumerates whatever JSON
+/// files exist in assets/layouts/ and passes the stem straight through,
+/// so adding a new board is just "drop the JSON file in", no Swift change.
 enum LayoutSelector {
     static func resolve(mode: String, layoutDir: String) -> String {
         let file: String
         switch mode {
+        case "auto":
+            file = detectHardwareLayoutFile()
         case "ansi":
             file = "ansi.json"
         case "jis":
             file = "jis.json"
         case "iso":
             file = "iso.json"
-        case "7skb":
-            file = "7skb.json"
-        case "tofu60":
-            file = "tofu60.json"
-        case "zoom65":
-            file = "zoom65.json"
         default:
-            file = detectHardwareLayoutFile()
+            file = "\(mode).json"
         }
         return (layoutDir as NSString).appendingPathComponent(file)
     }

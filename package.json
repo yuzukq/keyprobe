@@ -20,6 +20,13 @@
       "subtitle": "KeyProbe",
       "description": "Open the key test panel (focuses the existing panel if already open)",
       "mode": "no-view"
+    },
+    {
+      "name": "search-layout",
+      "title": "Select Keyboard Layout",
+      "subtitle": "KeyProbe",
+      "description": "Search and pick which keyboard layout to test (overrides the Keyboard Layout preference until changed again)",
+      "mode": "view"
     }
   ],
   "preferences": [

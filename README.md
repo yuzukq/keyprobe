@@ -108,13 +108,19 @@ python3 tools/qmk_to_layout.py \
 - QMKのCombo機能（7sKBでは F+D→英数、J+K→かな）はOSからは通常のkeyDownと区別がつかないため、変換時は考慮不要（実機ログで確認済み）
 - 変換テーブル(`QMK_TO_MACOS`)は3台分の実データで拡充済み。`KC_APP`(メニューキー)はキーコード一覧からの裏取りのみ（実機未検証）、`KC_NUBS`/`KC_NUHS`(ISO専用)は`jis.json`/`iso.json`と同じベストエフォート値を再利用、`QK_GESC`(グレイブエスケープ)は素押し時のEscapeとしてのみモデル化（Shift/Cmd同時押しでの`` ` ``送信は非対応）
 
-新しいプロファイルはRaycastの `Keyboard Layout` 設定に追加するだけで選択可能（`LayoutSelector.swift`に`case`を1行足すだけ）。
+新しいプロファイルは `assets/layouts/` に JSON を置くだけで自動的に選択肢に出てくる（後述の検索UIがディレクトリを毎回列挙するため、`LayoutSelector.swift`や`package.json`を触る必要はない）。
+
+### レイアウトの検索・選択UI
+
+Raycastのコマンド **"Select Keyboard Layout"**（`search-layout.tsx`）で、Auto-detect/ANSI/JIS/ISOと`assets/layouts/`内の全カスタムボードを検索・選択できる。選んだ内容は`LocalStorage`に保存され、次回 "Open KeyProbe" を実行したときに Preferences の `Keyboard Layout` 設定より優先される（Preferencesは「検索UIで何も選んでいないときのデフォルト」という位置づけになった）。
+
+新しいキーボードを`tools/qmk_to_layout.py`で変換して`assets/layouts/`に置くだけで、この検索UIとRaycast側のコード変更なしに選べるようになる設計にしてある（今後QMKレジストリの他のボードを追加変換する際、Swift/TSの修正が不要になる）。
 
 ### まだ対応していないもの
 
 - VIA/Remapの定義+キーマップのペア（KLE累積座標のパース）からの変換は未実装。QMK直下のファイルで足りるボードから優先して対応している
 - レイアウトオプション（分割/ANSI・ISOの切り替え等、`og60.json`にあった`labels`機能）は非対応。デフォルト構成のみ
-- QMKフォーク内の他のキーボードを検索して選べるUI（当初案の(B)）は未着手。まずは(A)のQMKファイル変換パスを1台で通したところ
+- QMKレジストリ全体（1000以上のベンダーディレクトリ）を一括変換するのは保留。検索UIができたので、今後は好きなタイミングで数台ずつ`tools/qmk_to_layout.py`にかけて`assets/layouts/`に追加していけばよい
 
 ## 次のステップ（未実装）
 
