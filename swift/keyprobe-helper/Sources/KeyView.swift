@@ -62,8 +62,11 @@ final class KeyView: NSView {
             layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.9).cgColor
             layer?.borderColor = NSColor.controlAccentColor.cgColor
         case .tested:
-            layer?.backgroundColor = NSColor.systemGreen.withAlphaComponent(0.35).cgColor
-            layer?.borderColor = NSColor.systemGreen.withAlphaComponent(0.6).cgColor
+            // Low-alpha systemMint reads as a tint on the HUD material rather
+            // than a flat colored patch, and sits next to controlAccentColor
+            // (usually blue) without the hue clash a saturated systemGreen has.
+            layer?.backgroundColor = NSColor.systemMint.withAlphaComponent(0.16).cgColor
+            layer?.borderColor = NSColor.systemMint.withAlphaComponent(0.45).cgColor
         }
     }
 }
