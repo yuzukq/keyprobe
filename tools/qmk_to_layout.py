@@ -66,6 +66,9 @@ QMK_TO_MACOS = {
     "KC_LSFT": (56, "shift"), "KC_RSFT": (60, "shift"),
     "KC_LALT": (58, "⌥"), "KC_RALT": (61, "⌥"),
     "KC_LGUI": (55, "⌘"), "KC_RGUI": (54, "⌘"),
+    # Mac-labeled aliases (Keychron's Mac-mode default keymaps use these).
+    "KC_LCMD": (55, "⌘"), "KC_RCMD": (54, "⌘"),
+    "KC_LOPT": (58, "⌥"), "KC_ROPT": (61, "⌥"),
     "KC_CAPS": (57, "caps lock"),
     "KC_F1": (122, "F1"), "KC_F2": (120, "F2"), "KC_F3": (99, "F3"),
     "KC_F4": (118, "F4"), "KC_F5": (96, "F5"), "KC_F6": (97, "F6"),
@@ -90,11 +93,36 @@ QMK_TO_MACOS = {
     "KC_NUBS": (10, "§"), "KC_NUHS": (42, "\\"),
     # KC_INT1 is QMK's own alias for KC_RO (same HID usage, same key).
     "KC_INT1": (94, "_"),
-    # QMK docs don't give KC_INT4/INT5 the same clear "= KC_HENK/KC_MHEN"
-    # alias treatment INT1 gets, and those two already have no confirmed
-    # macOS keycode (see KC_MHEN/KC_HENK above) — left unresolved rather
-    # than chained onto an already-unverified guess.
+    # HID "InternationalN" usages, per the standard USB HID Keyboard/Keypad
+    # page (International1=Ro, 2=Kana, 3=Yen, 4=Henkan, 5=Muhenkan) —
+    # cross-checked against QMK's own quantum/keymap_extras/keymap_japanese.h
+    # (JP_KANA -> KC_INT2, JP_YEN -> KC_INT3, JP_HENK -> KC_INT4,
+    # JP_MHEN -> KC_INT5). INT4/INT5 keep no confirmed macOS keycode, same
+    # as KC_MHEN/KC_HENK above — left unresolved rather than guessed.
+    "KC_INT2": (104, "かな"), "KC_INT3": (93, "¥"),
     "KC_SPACE": (49, "space"),
+    # Numpad (KeyRaycast's own fallback table, cross-checked earlier in
+    # this project). KC_NUM (Num Lock) has no PC equivalent on a Mac
+    # keyboard; Apple's own numpad prints "clear" at that position.
+    "KC_P0": (82, "0"), "KC_P1": (83, "1"), "KC_P2": (84, "2"),
+    "KC_P3": (85, "3"), "KC_P4": (86, "4"), "KC_P5": (87, "5"),
+    "KC_P6": (88, "6"), "KC_P7": (89, "7"), "KC_P8": (91, "8"),
+    "KC_P9": (92, "9"), "KC_PAST": (67, "*"), "KC_PSLS": (75, "/"),
+    "KC_PMNS": (78, "-"), "KC_PPLS": (69, "+"), "KC_PDOT": (65, "."),
+    "KC_PENT": (76, "return"), "KC_NUM": (71, "clear"),
+    # JIS shifted-symbol keycodes still tap the same physical key as their
+    # unshifted counterpart (e.g. { is Shift+[) — same reasoning as the
+    # MT()/modifier-wrap unwrapping above.
+    "KC_LCBR": (33, "["), "KC_RCBR": (30, "]"),
+    # QMK's quantum/keymap_extras/keymap_japanese.h JP_* aliases, resolved
+    # to whichever KC_*/KC_INT* they're #defined as in that header (fetched
+    # directly rather than assumed, after an earlier keycode mixup in this
+    # project taught us not to guess these).
+    "JP_ZKHK": (50, "半角/全角"), "JP_MINS": (27, "-"), "JP_CIRC": (24, "^"),
+    "JP_YEN": (93, "¥"), "JP_AT": (33, "@"), "JP_LBRC": (30, "["),
+    "JP_SCLN": (41, ";"), "JP_COLN": (39, ":"), "JP_RBRC": (42, "]"),
+    "JP_SLSH": (44, "/"), "JP_BSLS": (94, "_"), "JP_KANA": (104, "かな"),
+    "JP_MHEN": None, "JP_HENK": None,
     # Tri-layer momentary switches (community-standard "Lower"/"Raise"
     # naming) and RGB/EEPROM/bootloader housekeeping keys — all
     # firmware-internal, none produce a keyDown/keyUp.
@@ -117,6 +145,9 @@ QMK_TO_MACOS = {
     # No stable macOS virtual keycode / not a real keyDown (consumer control,
     # or JIS keys Apple's own keyboards don't have a case for):
     "KC_STOP": None, "KC_MHEN": None, "KC_HENK": None, "KC_MUTE": None,
+    "KC_MPLY": None, "KC_MNXT": None, "KC_MPRV": None,
+    "KC_VOLU": None, "KC_VOLD": None, "KC_BRIU": None, "KC_BRID": None,
+    "KC_MCTL": None, "KC_LPAD": None,
     "XXXXXXX": None, "_______": None, "KC_NO": None, "KC_TRNS": None,
     # Board-specific custom keycodes (via `enum custom_keycodes` +
     # process_record_user, e.g. splitkb/kyria's and orthodox's default

@@ -55,6 +55,29 @@ BOARDS = [
     ("Levinson (rev1)", "keebio/levinson/rev1", "keebio/levinson/keymaps/default", "levinson", None),
     ("KBD6x", "kbdfans/kbd6x", "kbdfans/kbd6x/keymaps/default", "kbd6x", None),
     ("HS60 v2 ANSI", "hs60/v2/ansi", "hs60/v2/ansi/keymaps/default", "hs60_v2", None),
+    # Second batch: user-requested specific boards (身内でよく見る/SNSで流行り),
+    # after checking which of the named boards actually run QMK (see chat —
+    # moNa2/cornix/roBa/Kinesis Advantage360 turned out to be ZMK, a
+    # different firmware/config format this tool doesn't parse; Lofree/
+    # Realforce aren't practically obtainable — official QMK source withheld
+    # or proprietary).
+    ("7sPlus (Salicylic)", "salicylic_acid3/7splus", "salicylic_acid3/7splus/keymaps/default", "7splus", None),
+    ("Ajisai74 (Salicylic)", "salicylic_acid3/ajisai74", "salicylic_acid3/ajisai74/keymaps/default", "ajisai74", None),
+    ("ErgoArrows (Salicylic)", "salicylic_acid3/ergoarrows", "salicylic_acid3/ergoarrows/keymaps/default", "ergoarrows", None),
+    ("Getta25 (Salicylic)", "salicylic_acid3/getta25/rev1", "salicylic_acid3/getta25/keymaps/default", "getta25", None),
+    ("Guide68 (Salicylic)", "salicylic_acid3/guide68", "salicylic_acid3/guide68/keymaps/default", "guide68", None),
+    ("Jisplit89 (Salicylic)", "salicylic_acid3/jisplit89/rev1", "salicylic_acid3/jisplit89/keymaps/default", "jisplit89", None),
+    ("Nafuda (Salicylic)", "salicylic_acid3/nafuda", "salicylic_acid3/nafuda/keymaps/default", "nafuda", None),
+    ("Naked48 (Salicylic)", "salicylic_acid3/naked48/rev1", "salicylic_acid3/naked48/keymaps/default", "naked48", None),
+    ("Naked60 (Salicylic)", "salicylic_acid3/naked60/rev1", "salicylic_acid3/naked60/keymaps/default", "naked60", None),
+    ("Naked64 (Salicylic)", "salicylic_acid3/naked64/rev1", "salicylic_acid3/naked64/keymaps/default", "naked64", None),
+    ("NKNL7EN (Salicylic)", "salicylic_acid3/nknl7en", "salicylic_acid3/nknl7en/keymaps/default", "nknl7en", None),
+    ("NKNL7JP (Salicylic)", "salicylic_acid3/nknl7jp", "salicylic_acid3/nknl7jp/keymaps/default", "nknl7jp", None),
+    ("Setta21 (Salicylic)", "salicylic_acid3/setta21/rev1", "salicylic_acid3/setta21/keymaps/default", "setta21", None),
+    ("Keychron Q11 (ANSI)", "keychron/q11", "keychron/q11/ansi_encoder/keymaps/default", "keychron_q11", "LAYOUT_91_ansi"),
+    ("HHKB ANSI", "hhkb/ansi", "hhkb/ansi/keymaps/default", "hhkb_ansi", "LAYOUT"),
+    ("HHKB JP", "hhkb/jp", "hhkb/jp/keymaps/default", "hhkb_jp", None),
+    ("Silakka 54", "silakka54", "silakka54/keymaps/default", "silakka54", None),
 ]
 # Dropped from this batch after investigation (not worth chasing further
 # right now — can revisit by hand later): Ergodox EZ (LAYOUT_ergodox_pretty
