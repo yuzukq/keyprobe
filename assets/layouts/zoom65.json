@@ -10,7 +10,7 @@
       "y": 0,
       "w": 1.0,
       "h": 1.0,
-      "label": "esc"
+      "label": "⎋"
     },
     {
       "keycode": 18,
@@ -114,7 +114,7 @@
       "y": 0,
       "w": 1.0,
       "h": 1.0,
-      "label": "delete"
+      "label": "⌫"
     },
     {
       "keycode": 51,
@@ -122,7 +122,7 @@
       "y": 0,
       "w": 1.0,
       "h": 1.0,
-      "label": "delete"
+      "label": "⌫"
     },
     {
       "keycode": null,
@@ -138,7 +138,7 @@
       "y": 1,
       "w": 1.5,
       "h": 1.0,
-      "label": "tab"
+      "label": "⇥"
     },
     {
       "keycode": 12,
@@ -250,7 +250,7 @@
       "y": 1,
       "w": 1.0,
       "h": 1.0,
-      "label": "forward delete"
+      "label": "⌦"
     },
     {
       "keycode": 57,
@@ -258,7 +258,7 @@
       "y": 2,
       "w": 1.75,
       "h": 1.0,
-      "label": "caps lock"
+      "label": "⇪"
     },
     {
       "keycode": 0,
@@ -354,7 +354,7 @@
       "y": 2,
       "w": 2.25,
       "h": 1.0,
-      "label": "return"
+      "label": "↩"
     },
     {
       "keycode": 116,
@@ -362,7 +362,7 @@
       "y": 2,
       "w": 1.0,
       "h": 1.0,
-      "label": "page up"
+      "label": "⇞"
     },
     {
       "keycode": 56,
@@ -370,7 +370,7 @@
       "y": 3,
       "w": 1.25,
       "h": 1.0,
-      "label": "shift"
+      "label": "⇧"
     },
     {
       "keycode": 56,
@@ -378,7 +378,7 @@
       "y": 3,
       "w": 1.0,
       "h": 1.0,
-      "label": "shift"
+      "label": "⇧"
     },
     {
       "keycode": 6,
@@ -466,7 +466,7 @@
       "y": 3,
       "w": 1.75,
       "h": 1.0,
-      "label": "shift"
+      "label": "⇧"
     },
     {
       "keycode": 126,
@@ -482,7 +482,7 @@
       "y": 3,
       "w": 1.0,
       "h": 1.0,
-      "label": "end"
+      "label": "↘"
     },
     {
       "keycode": 59,
@@ -490,7 +490,7 @@
       "y": 4,
       "w": 1.25,
       "h": 1.0,
-      "label": "control"
+      "label": "⌃"
     },
     {
       "keycode": 55,
@@ -498,7 +498,7 @@
       "y": 4,
       "w": 1.25,
       "h": 1.0,
-      "label": "command"
+      "label": "⌘"
     },
     {
       "keycode": 58,
@@ -506,7 +506,7 @@
       "y": 4,
       "w": 1.25,
       "h": 1.0,
-      "label": "option"
+      "label": "⌥"
     },
     {
       "keycode": 49,
@@ -538,7 +538,7 @@
       "y": 4,
       "w": 1.25,
       "h": 1.0,
-      "label": "option"
+      "label": "⌥"
     },
     {
       "keycode": null,
