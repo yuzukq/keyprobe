@@ -1,4 +1,8 @@
 <p align="center">
+  English | <a href="README.ja.md">日本語</a>
+</p>
+
+<p align="center">
   <img src="assets/icon.png" width="128" height="128" alt="KeyProbe icon" />
 </p>
 
