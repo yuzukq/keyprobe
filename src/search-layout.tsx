@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import fs from "fs";
 import path from "path";
 import { readPidOrNull, stopHelper, startHelper } from "./helper";
+import { getStrings } from "./i18n";
 
 const OVERRIDE_KEY = "selectedLayout";
 
@@ -49,12 +50,14 @@ const BUILT_IN = new Set(["ansi", "jis", "iso"]);
 export default function Command() {
   const [layouts, setLayouts] = useState<LayoutEntry[]>([]);
   // undefined = not read from LocalStorage yet (avoid flashing the wrong
-  // row's "現在の選択" while that read is in flight). null = read finished,
-  // no override saved, so open.tsx falls back to the Preferences pane's
-  // Keyboard Layout setting. Distinct from the string "auto", which is an
-  // override that was explicitly set to Auto-detect from this list.
+  // row's "current selection" badge while that read is in flight). null =
+  // read finished, no override saved, so open.tsx falls back to the
+  // Preferences pane's Keyboard Layout setting. Distinct from the string
+  // "auto", which is an override that was explicitly set to Auto-detect
+  // from this list.
   const [current, setCurrent] = useState<string | null | undefined>(undefined);
   const preferenceLayoutMode = getPreferenceValues<Preferences>().layoutMode;
+  const t = getStrings();
 
   useEffect(() => {
     setLayouts(loadLayouts());
@@ -76,9 +79,9 @@ export default function Command() {
         await showHUD(`⚠️ ${result.error}`);
         return;
       }
-      await showHUD(`KeyProbe layout set: ${displayName}（再起動しました）`);
+      await showHUD(t.layoutSetHud(displayName, true));
     } else {
-      await showHUD(`KeyProbe layout set: ${displayName}`);
+      await showHUD(t.layoutSetHud(displayName, false));
     }
     await popToRoot();
   }
@@ -90,7 +93,7 @@ export default function Command() {
 
   async function useDefault() {
     await LocalStorage.removeItem(OVERRIDE_KEY);
-    await restart(preferenceLayoutMode, "Preferences の設定");
+    await restart(preferenceLayoutMode, t.preferenceDisplayName);
   }
 
   const builtIns = layouts.filter((l) => BUILT_IN.has(l.stem));
@@ -98,27 +101,27 @@ export default function Command() {
 
   return (
     <List searchBarPlaceholder="Search keyboard layouts...">
-      <List.Section title="標準">
+      <List.Section title={t.builtInSection}>
         <List.Item
-          title="Preferences の設定に戻す"
-          subtitle={`このコマンドでの選択を解除し、Raycastの環境設定（現在: ${preferenceLayoutMode}）に従う`}
+          title={t.usePreferenceTitle}
+          subtitle={t.usePreferenceSubtitle(preferenceLayoutMode)}
           icon={Icon.ArrowCounterClockwise}
-          accessories={current === null ? [{ text: "現在の選択" }] : []}
+          accessories={current === null ? [{ text: t.currentSelection }] : []}
           actions={
             <ActionPanel>
-              <Action title="この設定を使う" onAction={useDefault} />
+              <Action title={t.useThisAction} onAction={useDefault} />
             </ActionPanel>
           }
         />
         <List.Item
           title="Auto-detect"
-          subtitle="接続中のキーボードのハードウェア種別から自動選択"
+          subtitle={t.autoDetectSubtitle}
           icon={Icon.MagnifyingGlass}
-          accessories={current === "auto" ? [{ text: "現在の選択" }] : []}
+          accessories={current === "auto" ? [{ text: t.currentSelection }] : []}
           actions={
             <ActionPanel>
               <Action
-                title="この設定を使う"
+                title={t.useThisAction}
                 onAction={() => select("auto", "Auto-detect")}
               />
             </ActionPanel>
@@ -130,11 +133,13 @@ export default function Command() {
             title={l.name}
             subtitle={`${l.keyCount} keys`}
             icon={Icon.Keyboard}
-            accessories={current === l.stem ? [{ text: "現在の選択" }] : []}
+            accessories={
+              current === l.stem ? [{ text: t.currentSelection }] : []
+            }
             actions={
               <ActionPanel>
                 <Action
-                  title="この設定を使う"
+                  title={t.useThisAction}
                   onAction={() => select(l.stem, l.name)}
                 />
               </ActionPanel>
@@ -142,18 +147,20 @@ export default function Command() {
           />
         ))}
       </List.Section>
-      <List.Section title="カスタムキーボード">
+      <List.Section title={t.customSection}>
         {custom.map((l) => (
           <List.Item
             key={l.stem}
             title={l.name}
             subtitle={`${l.keyCount} keys`}
             icon={Icon.Keyboard}
-            accessories={current === l.stem ? [{ text: "現在の選択" }] : []}
+            accessories={
+              current === l.stem ? [{ text: t.currentSelection }] : []
+            }
             actions={
               <ActionPanel>
                 <Action
-                  title="この設定を使う"
+                  title={t.useThisAction}
                   onAction={() => select(l.stem, l.name)}
                 />
               </ActionPanel>

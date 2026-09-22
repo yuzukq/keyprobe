@@ -43,6 +43,18 @@
         { "title": "JIS", "value": "jis" },
         { "title": "ISO", "value": "iso" }
       ]
+    },
+    {
+      "name": "language",
+      "title": "Display Language",
+      "description": "Language for KeyProbe's own UI text in the Select Keyboard Layout command. Doesn't affect Raycast's own chrome.",
+      "type": "dropdown",
+      "required": false,
+      "default": "en",
+      "data": [
+        { "title": "English", "value": "en" },
+        { "title": "日本語", "value": "ja" }
+      ]
     }
   ],
   "dependencies": {

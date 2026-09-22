@@ -41,6 +41,7 @@
 
 - Raycast の Preferences にある **Keyboard Layout** で、デフォルトのレイアウト（Auto-detect / ANSI / JIS / ISO）を設定できる
 - **Select Keyboard Layout** コマンドでは、同梱の全レイアウト（カスタムキーボード含む）を検索して選択できる。パネルを開いたままでも即座に切り替わる
+- Preferences の **Display Language**（English / 日本語）で、**Select Keyboard Layout** コマンド自体の表示言語を切り替えられる
 
 > [!NOTE]
 > Auto-detect は接続されている**キーボードのハードウェア種別**を見て判定しており、macOSの入力ソース（言語設定）とは無関係。ANSI形状のキーボードは、ファームウェアがJISマップのキーコンボを送信してきても「ANSI」のまま扱われる。そうしたキーを検証したいときは明示的にJISを選ぶこと。
