@@ -91,20 +91,30 @@ export default function Command() {
     await restart(stem, displayName);
   }
 
-  async function useDefault() {
-    await LocalStorage.removeItem(OVERRIDE_KEY);
-    await restart(preferenceLayoutMode, t.preferenceDisplayName);
-  }
-
   const builtIns = layouts.filter((l) => BUILT_IN.has(l.stem));
   const custom = layouts.filter((l) => !BUILT_IN.has(l.stem));
+
+  // The layoutMode preference stores a raw stem ("ansi", "jis", ...) or
+  // "auto" — never a display name — so it needs resolving before it's
+  // shown to a user, the same way built-in/custom List.Item titles already
+  // use l.name instead of l.stem.
+  const preferenceDisplayValue =
+    preferenceLayoutMode === "auto"
+      ? "Auto-detect"
+      : (layouts.find((l) => l.stem === preferenceLayoutMode)?.name ??
+        preferenceLayoutMode);
+
+  async function useDefault() {
+    await LocalStorage.removeItem(OVERRIDE_KEY);
+    await restart(preferenceLayoutMode, preferenceDisplayValue);
+  }
 
   return (
     <List searchBarPlaceholder="Search keyboard layouts...">
       <List.Section title={t.builtInSection}>
         <List.Item
           title={t.usePreferenceTitle}
-          subtitle={t.usePreferenceSubtitle(preferenceLayoutMode)}
+          subtitle={t.usePreferenceSubtitle(preferenceDisplayValue)}
           icon={Icon.ArrowCounterClockwise}
           accessories={current === null ? [{ text: t.currentSelection }] : []}
           actions={
