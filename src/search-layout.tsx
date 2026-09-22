@@ -7,6 +7,7 @@ import {
   showHUD,
   popToRoot,
   environment,
+  getPreferenceValues,
 } from "@raycast/api";
 import { useEffect, useState } from "react";
 import fs from "fs";
@@ -47,18 +48,22 @@ const BUILT_IN = new Set(["ansi", "jis", "iso"]);
 
 export default function Command() {
   const [layouts, setLayouts] = useState<LayoutEntry[]>([]);
-  const [current, setCurrent] = useState<string>("auto");
+  // undefined = not read from LocalStorage yet (avoid flashing the wrong
+  // row's "現在の選択" while that read is in flight). null = read finished,
+  // no override saved, so open.tsx falls back to the Preferences pane's
+  // Keyboard Layout setting. Distinct from the string "auto", which is an
+  // override that was explicitly set to Auto-detect from this list.
+  const [current, setCurrent] = useState<string | null | undefined>(undefined);
+  const preferenceLayoutMode = getPreferenceValues<Preferences>().layoutMode;
 
   useEffect(() => {
     setLayouts(loadLayouts());
     LocalStorage.getItem<string>(OVERRIDE_KEY).then((v) =>
-      setCurrent(v ?? "auto"),
+      setCurrent(v ?? null),
     );
   }, []);
 
-  async function select(stem: string) {
-    await LocalStorage.setItem(OVERRIDE_KEY, stem);
-
+  async function restart(stem: string, displayName: string) {
     // The helper only reads --layout-mode at startup, so if a window is
     // already open, changing the selection alone wouldn't do anything
     // until the user closed and reopened it by hand — restart it here
@@ -71,11 +76,21 @@ export default function Command() {
         await showHUD(`⚠️ ${result.error}`);
         return;
       }
-      await showHUD(`KeyProbe layout set: ${stem}（再起動しました）`);
+      await showHUD(`KeyProbe layout set: ${displayName}（再起動しました）`);
     } else {
-      await showHUD(`KeyProbe layout set: ${stem}`);
+      await showHUD(`KeyProbe layout set: ${displayName}`);
     }
     await popToRoot();
+  }
+
+  async function select(stem: string, displayName: string) {
+    await LocalStorage.setItem(OVERRIDE_KEY, stem);
+    await restart(stem, displayName);
+  }
+
+  async function useDefault() {
+    await LocalStorage.removeItem(OVERRIDE_KEY);
+    await restart(preferenceLayoutMode, "Preferences の設定");
   }
 
   const builtIns = layouts.filter((l) => BUILT_IN.has(l.stem));
@@ -85,13 +100,27 @@ export default function Command() {
     <List searchBarPlaceholder="Search keyboard layouts...">
       <List.Section title="標準">
         <List.Item
+          title="Preferences の設定に戻す"
+          subtitle={`このコマンドでの選択を解除し、Raycastの環境設定（現在: ${preferenceLayoutMode}）に従う`}
+          icon={Icon.ArrowCounterClockwise}
+          accessories={current === null ? [{ text: "現在の選択" }] : []}
+          actions={
+            <ActionPanel>
+              <Action title="この設定を使う" onAction={useDefault} />
+            </ActionPanel>
+          }
+        />
+        <List.Item
           title="Auto-detect"
           subtitle="接続中のキーボードのハードウェア種別から自動選択"
           icon={Icon.MagnifyingGlass}
           accessories={current === "auto" ? [{ text: "現在の選択" }] : []}
           actions={
             <ActionPanel>
-              <Action title="この設定を使う" onAction={() => select("auto")} />
+              <Action
+                title="この設定を使う"
+                onAction={() => select("auto", "Auto-detect")}
+              />
             </ActionPanel>
           }
         />
@@ -106,7 +135,7 @@ export default function Command() {
               <ActionPanel>
                 <Action
                   title="この設定を使う"
-                  onAction={() => select(l.stem)}
+                  onAction={() => select(l.stem, l.name)}
                 />
               </ActionPanel>
             }
@@ -125,7 +154,7 @@ export default function Command() {
               <ActionPanel>
                 <Action
                   title="この設定を使う"
-                  onAction={() => select(l.stem)}
+                  onAction={() => select(l.stem, l.name)}
                 />
               </ActionPanel>
             }

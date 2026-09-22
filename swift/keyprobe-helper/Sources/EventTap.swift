@@ -21,9 +21,9 @@ class EventTap {
     private var onActivity: ((KeyActivity) -> Void)?
 
     // Modifier keys (Shift/Ctrl/Option/Command/Fn/CapsLock, incl. left/right
-    // pairs) never fire keyDown/keyUp — only flagsChanged (implementation
-    // review #1), and that event's flag bits are shared between e.g. left
-    // and right Shift, so they can't tell which physical key just changed.
+    // pairs) never fire keyDown/keyUp — only flagsChanged, and that event's
+    // flag bits are shared between e.g. left and right Shift, so they can't
+    // tell which physical key just changed.
     // What's reliable is the event's own keycode field: the OS always
     // reports the specific physical key that changed. So instead of reading
     // direction from the flag bits, we toggle per keycode: the first

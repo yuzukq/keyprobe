@@ -46,7 +46,18 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         let padding: CGFloat = 16
         let boardWidth = layout.width * layout.unit
         let boardHeight = layout.height * layout.unit
-        let contentSize = NSSize(width: boardWidth + padding * 2, height: boardHeight + toolbarHeight + padding * 2)
+        // The toolbar (unmapped-key readout + two buttons) needs a minimum
+        // width regardless of the board — some imported custom keyboards
+        // (e.g. macropads) are narrower than the toolbar itself, which
+        // would otherwise push the Layout button to a negative x.
+        let resetButtonWidth: CGFloat = 80
+        let layoutButtonWidth: CGFloat = 100
+        let buttonGap: CGFloat = 8
+        let labelGap: CGFloat = 8
+        let buttonsWidth = resetButtonWidth + buttonGap + layoutButtonWidth
+        let toolbarMinWidth: CGFloat = padding * 2 + buttonsWidth + labelGap + 120
+        let contentWidth = max(boardWidth + padding * 2, toolbarMinWidth)
+        let contentSize = NSSize(width: contentWidth, height: boardHeight + toolbarHeight + padding * 2)
         let contentRect = NSRect(origin: .zero, size: contentSize)
 
         let window = KeyProbeWindow(
@@ -75,23 +86,24 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         unmappedLabel.font = .systemFont(ofSize: 11)
         unmappedLabel.textColor = .secondaryLabelColor
         unmappedLabel.lineBreakMode = .byTruncatingTail
+        let labelWidth = contentWidth - padding * 2 - buttonsWidth - labelGap
         unmappedLabel.frame = NSRect(
             x: padding, y: contentSize.height - toolbarHeight - padding / 2,
-            width: boardWidth - 200, height: 20
+            width: labelWidth, height: 20
         )
         unmappedLabel.autoresizingMask = [.width]
         contentView.addSubview(unmappedLabel)
 
         let keyboardView = KeyboardView(layout: layout, unmappedLabel: unmappedLabel)
-        keyboardView.frame.origin = NSPoint(x: padding, y: padding)
+        keyboardView.frame.origin = NSPoint(x: (contentWidth - boardWidth) / 2, y: padding)
         contentView.addSubview(keyboardView)
         self.keyboardView = keyboardView
 
         let resetButton = NSButton(title: "Reset", target: self, action: #selector(resetTapped))
         resetButton.bezelStyle = .rounded
         resetButton.frame = NSRect(
-            x: contentSize.width - 80 - padding, y: contentSize.height - toolbarHeight - padding / 2,
-            width: 80, height: 24
+            x: contentSize.width - resetButtonWidth - padding, y: contentSize.height - toolbarHeight - padding / 2,
+            width: resetButtonWidth, height: 24
         )
         resetButton.autoresizingMask = [.minXMargin]
         contentView.addSubview(resetButton)
@@ -102,8 +114,8 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         let layoutButton = NSButton(title: "Layout…", target: self, action: #selector(layoutTapped))
         layoutButton.bezelStyle = .rounded
         layoutButton.frame = NSRect(
-            x: contentSize.width - 80 - 8 - 100 - padding, y: contentSize.height - toolbarHeight - padding / 2,
-            width: 100, height: 24
+            x: contentSize.width - buttonsWidth - padding, y: contentSize.height - toolbarHeight - padding / 2,
+            width: layoutButtonWidth, height: 24
         )
         layoutButton.autoresizingMask = [.minXMargin]
         contentView.addSubview(layoutButton)
