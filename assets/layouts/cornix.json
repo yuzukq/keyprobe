@@ -5,12 +5,12 @@
   "height": 6.38,
   "keys": [
     {
-      "keycode": null,
+      "keycode": 48,
       "x": 0,
       "y": 0.5000000000000001,
       "w": 1.0,
       "h": 1.0,
-      "label": "r0c0"
+      "label": "tab"
     },
     {
       "keycode": 12,
@@ -93,20 +93,20 @@
       "label": "P"
     },
     {
-      "keycode": null,
+      "keycode": 51,
       "x": 13.5,
       "y": 0.5000000000000001,
       "w": 1.0,
       "h": 1.0,
-      "label": "r0c13"
+      "label": "BS"
     },
     {
-      "keycode": null,
+      "keycode": 57,
       "x": 0,
       "y": 1.5,
       "w": 1.0,
       "h": 1.0,
-      "label": "r1c0"
+      "label": "caps lock"
     },
     {
       "keycode": 0,
@@ -181,28 +181,28 @@
       "label": "L"
     },
     {
-      "keycode": 41,
+      "keycode": 42,
       "x": 12.5,
       "y": 1.5,
       "w": 1.0,
       "h": 1.0,
-      "label": ";"
+      "label": "\\"
     },
     {
-      "keycode": null,
+      "keycode": 36,
       "x": 13.5,
       "y": 1.5,
       "w": 1.0,
       "h": 1.0,
-      "label": "r1c13"
+      "label": "return"
     },
     {
-      "keycode": null,
+      "keycode": 56,
       "x": 0,
       "y": 2.55,
       "w": 1.0,
       "h": 1.0,
-      "label": "r2c0"
+      "label": "shift"
     },
     {
       "keycode": 6,
@@ -250,7 +250,7 @@
       "y": 2,
       "w": 1.0,
       "h": 1.0,
-      "label": "r2c6"
+      "label": "mute"
     },
     {
       "keycode": null,
@@ -258,7 +258,7 @@
       "y": 2,
       "w": 1.0,
       "h": 1.0,
-      "label": "r2c7"
+      "label": "mouse 3"
     },
     {
       "keycode": 45,
@@ -301,36 +301,36 @@
       "label": "/"
     },
     {
-      "keycode": null,
+      "keycode": 126,
       "x": 13.5,
       "y": 2.55,
       "w": 1.0,
       "h": 1.0,
-      "label": "r2c13"
+      "label": "↑"
     },
     {
-      "keycode": null,
+      "keycode": 59,
       "x": 0,
       "y": 3.55,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c0"
+      "label": "⌃"
     },
     {
-      "keycode": null,
+      "keycode": 55,
       "x": 1,
       "y": 3.55,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c1"
+      "label": "⌘"
     },
     {
-      "keycode": null,
+      "keycode": 58,
       "x": 2,
       "y": 3.3,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c2"
+      "label": "⌥"
     },
     {
       "keycode": null,
@@ -338,7 +338,7 @@
       "y": 3.63,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c3"
+      "label": "Layer 1"
     },
     {
       "keycode": null,
@@ -346,23 +346,23 @@
       "y": 3.7,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c4"
+      "label": "Layer 3"
     },
     {
-      "keycode": null,
+      "keycode": 49,
       "x": 5.5,
       "y": 3.6500000000000004,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c5"
+      "label": "space"
     },
     {
-      "keycode": null,
+      "keycode": 49,
       "x": 7.640000000000001,
       "y": 5.380000000000001,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c8"
+      "label": "space"
     },
     {
       "keycode": null,
@@ -370,7 +370,7 @@
       "y": 3.75,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c9"
+      "label": "Layer 4"
     },
     {
       "keycode": null,
@@ -378,31 +378,31 @@
       "y": 3.63,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c10"
+      "label": "Layer 2"
     },
     {
-      "keycode": null,
+      "keycode": 123,
       "x": 11.5,
       "y": 3.38,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c11"
+      "label": "←"
     },
     {
-      "keycode": null,
+      "keycode": 125,
       "x": 12.5,
       "y": 3.55,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c12"
+      "label": "↓"
     },
     {
-      "keycode": null,
+      "keycode": 124,
       "x": 13.5,
       "y": 3.55,
       "w": 1.0,
       "h": 1.0,
-      "label": "r3c13"
+      "label": "→"
     }
   ]
 }

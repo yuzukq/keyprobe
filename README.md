@@ -51,7 +51,7 @@
 > Hardware media/volume/brightness keys arrive as a different event type this tool doesn't capture, so they won't register at all — not even as an unmapped key.
 
 - A few JIS/ISO punctuation positions are best-effort, not verified on real hardware (see comments in `assets/layouts/jis.json` / `iso.json`)
-- Some ZMK-based split boards ship with heavily customized keymaps that can't be safely auto-parsed. On those (e.g. cornix), the thumb cluster and a few symbol keys are drawn as non-testable placeholders — correct shape, but not read from the actual firmware
+- cornix's default keymap couldn't be auto-parsed (heavy macro use), so its layout was built from a reference image of the actual default keymap instead. Its four layer-switch keys, plus Mute and a mouse button, are drawn as non-testable — everything else reflects the real default keymap
 
 ## Adding a custom keyboard layout
 
