@@ -4,7 +4,7 @@
   "title": "KeyProbe",
   "description": "Visually test every key on your keyboard in a native macOS panel launched from Raycast.",
   "icon": "icon.png",
-  "author": "yuzu",
+  "author": "yuzukq",
   "license": "MIT",
   "categories": [
     "System",
