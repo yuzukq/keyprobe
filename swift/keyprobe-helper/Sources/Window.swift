@@ -87,6 +87,16 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         let contentView = SwallowingContentView(frame: contentRect)
         contentView.addSubview(visualEffect)
 
+        // A flat dark tint over the vibrancy, not a swap to a more opaque
+        // material — keeps the glass see-through while giving low-alpha key
+        // states (untested, tested) a darker, more even backdrop to read
+        // against regardless of what's behind the window.
+        let scrim = NSView(frame: contentRect)
+        scrim.wantsLayer = true
+        scrim.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.2).cgColor
+        scrim.autoresizingMask = [.width, .height]
+        contentView.addSubview(scrim)
+
         let unmappedLabel = NSTextField(labelWithString: "")
         unmappedLabel.font = .systemFont(ofSize: 11)
         unmappedLabel.textColor = .secondaryLabelColor
