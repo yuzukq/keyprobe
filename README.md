@@ -11,7 +11,7 @@
 <p align="center">
   Test every key on your keyboard from Raycast.
   <br />
-  A native, translucent panel that highlights each key as you press it — confirm a remapped or custom keyboard actually works at the OS level.
+  A native, translucent panel that highlights each key as you press it — confirm a custom keyboard actually works at the OS level.
 </p>
 
 ![KeyProbe panel with pressed and tested keys](metadata/keyprobe-1.png)
@@ -20,8 +20,8 @@
 
 - Highlights a key while held, then marks it "tested" once released, so you can see at a glance which keys you haven't tried yet
 - Built-in ANSI / JIS / ISO layouts, auto-detected from your attached keyboard's hardware type
-- 50+ bundled custom keyboard layouts (Corne, Lily58, Planck, HHKB, Keychron Q11, moNa2, Kinesis Advantage 360, and more), searchable via **Select Keyboard Layout**
-- Keys with no fixed OS keycode (layer keys, media keys) are drawn as non-testable instead of looking like dead keys
+- Currently 50+ bundled custom keyboard layouts (Corne, Lily58, Planck, HHKB, Keychron Q11, moNa2, Kinesis Advantage 360, and more), searchable via **Select Keyboard Layout**
+- Keys with no fixed OS keycode (layer keys, media keys) are drawn as non-testable — after switching layers, press the key and confirm it actually types what you expect
 - Reset button clears all state without closing the panel
 
 ## Setup
@@ -51,8 +51,7 @@
 > [!WARNING]
 > Hardware media/volume/brightness keys arrive as a different event type this tool doesn't capture, so they won't register at all — not even as an unmapped key.
 
-- A few JIS/ISO punctuation positions are best-effort, not verified on real hardware (see comments in `assets/layouts/jis.json` / `iso.json`)
-- cornix's default keymap couldn't be auto-parsed (heavy macro use), so its layout was built from a reference image of the actual default keymap instead. Its four layer-switch keys, plus Mute and a mouse button, are drawn as non-testable — everything else reflects the real default keymap
+- Small ZMK-firmware layouts like cornix couldn't have their default keymap auto-parsed (heavy macro use), so their layout was built from a reference image of the actual default keymap instead. To test a key that isn't shown on the board, check the unmapped-key readout at the top of the panel, or switch to another Keyboard Layout such as the 100% (ANSI) full-size board
 
 ## Adding a custom keyboard layout
 
