@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 import fs from "fs";
 import path from "path";
 import { readPidOrNull, stopHelper, startHelper, OVERRIDE_KEY } from "./helper";
-import { getStrings } from "./i18n";
 
 interface LayoutEntry {
   stem: string;
@@ -48,14 +47,12 @@ const BUILT_IN = new Set(["ansi", "jis", "iso"]);
 export default function Command() {
   const [layouts, setLayouts] = useState<LayoutEntry[]>([]);
   // undefined = not read from LocalStorage yet (avoid flashing the wrong
-  // row's "current selection" badge while that read is in flight). null =
-  // read finished, no override saved, so open.tsx falls back to the
-  // Preferences pane's Keyboard Layout setting. Distinct from the string
-  // "auto", which is an override that was explicitly set to Auto-detect
-  // from this list.
+  // row's "Current" badge while that read is in flight). null = read
+  // finished, no override saved, so open.tsx falls back to the Preferences
+  // pane's Keyboard Layout setting. Distinct from the string "auto", which
+  // is an override that was explicitly set to Auto-detect from this list.
   const [current, setCurrent] = useState<string | null | undefined>(undefined);
   const preferenceLayoutMode = getPreferenceValues<Preferences>().layoutMode;
-  const t = getStrings();
 
   useEffect(() => {
     setLayouts(loadLayouts());
@@ -77,9 +74,9 @@ export default function Command() {
         await showHUD(`⚠️ ${result.error}`);
         return;
       }
-      await showHUD(t.layoutSetHud(displayName, true));
+      await showHUD(`KeyProbe layout set: ${displayName} (restarted)`);
     } else {
-      await showHUD(t.layoutSetHud(displayName, false));
+      await showHUD(`KeyProbe layout set: ${displayName}`);
     }
     await popToRoot();
   }
@@ -109,27 +106,27 @@ export default function Command() {
 
   return (
     <List searchBarPlaceholder="Search keyboard layouts...">
-      <List.Section title={t.builtInSection}>
+      <List.Section title="Built-in">
         <List.Item
-          title={t.usePreferenceTitle}
-          subtitle={t.usePreferenceSubtitle(preferenceDisplayValue)}
+          title="Use Preference Setting"
+          subtitle={`Currently: ${preferenceDisplayValue}`}
           icon={Icon.ArrowCounterClockwise}
-          accessories={current === null ? [{ text: t.currentSelection }] : []}
+          accessories={current === null ? [{ text: "Current" }] : []}
           actions={
             <ActionPanel>
-              <Action title={t.useThisAction} onAction={useDefault} />
+              <Action title="Use This" onAction={useDefault} />
             </ActionPanel>
           }
         />
         <List.Item
           title="Auto-detect"
-          subtitle={t.autoDetectSubtitle}
+          subtitle="Auto-select based on the attached keyboard's hardware type"
           icon={Icon.MagnifyingGlass}
-          accessories={current === "auto" ? [{ text: t.currentSelection }] : []}
+          accessories={current === "auto" ? [{ text: "Current" }] : []}
           actions={
             <ActionPanel>
               <Action
-                title={t.useThisAction}
+                title="Use This"
                 onAction={() => select("auto", "Auto-detect")}
               />
             </ActionPanel>
@@ -141,13 +138,11 @@ export default function Command() {
             title={l.name}
             subtitle={`${l.keyCount} keys`}
             icon={Icon.Keyboard}
-            accessories={
-              current === l.stem ? [{ text: t.currentSelection }] : []
-            }
+            accessories={current === l.stem ? [{ text: "Current" }] : []}
             actions={
               <ActionPanel>
                 <Action
-                  title={t.useThisAction}
+                  title="Use This"
                   onAction={() => select(l.stem, l.name)}
                 />
               </ActionPanel>
@@ -155,20 +150,18 @@ export default function Command() {
           />
         ))}
       </List.Section>
-      <List.Section title={t.customSection}>
+      <List.Section title="Custom Keyboards">
         {custom.map((l) => (
           <List.Item
             key={l.stem}
             title={l.name}
             subtitle={`${l.keyCount} keys`}
             icon={Icon.Keyboard}
-            accessories={
-              current === l.stem ? [{ text: t.currentSelection }] : []
-            }
+            accessories={current === l.stem ? [{ text: "Current" }] : []}
             actions={
               <ActionPanel>
                 <Action
-                  title={t.useThisAction}
+                  title="Use This"
                   onAction={() => select(l.stem, l.name)}
                 />
               </ActionPanel>
