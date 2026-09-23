@@ -69,8 +69,8 @@ final class KeyView: NSView {
     private func apply(_ state: KeyState) {
         switch state {
         case .untested:
-            layer?.backgroundColor = NSColor.white.withAlphaComponent(0.06).cgColor
-            layer?.borderColor = NSColor.white.withAlphaComponent(0.18).cgColor
+            layer?.backgroundColor = NSColor.white.withAlphaComponent(0.10).cgColor
+            layer?.borderColor = NSColor.white.withAlphaComponent(0.28).cgColor
             layer?.borderWidth = 1
         case .pressed:
             layer?.backgroundColor = NSColor.controlAccentColor.withAlphaComponent(0.9).cgColor
@@ -80,8 +80,8 @@ final class KeyView: NSView {
             // Low-alpha systemMint reads as a tint on the HUD material rather
             // than a flat colored patch, and sits next to controlAccentColor
             // (usually blue) without the hue clash a saturated systemGreen has.
-            layer?.backgroundColor = NSColor.systemMint.withAlphaComponent(0.16).cgColor
-            layer?.borderColor = NSColor.systemMint.withAlphaComponent(0.45).cgColor
+            layer?.backgroundColor = NSColor.systemMint.withAlphaComponent(0.24).cgColor
+            layer?.borderColor = NSColor.systemMint.withAlphaComponent(0.55).cgColor
             layer?.borderWidth = 1
         case .nonTestable:
             // Deliberately quiet and colorless — this isn't a fourth "loud"
