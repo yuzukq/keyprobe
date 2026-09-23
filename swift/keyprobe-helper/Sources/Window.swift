@@ -73,6 +73,10 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         window.backgroundColor = .clear
         window.isMovableByWindowBackground = true
         window.delegate = self
+        // Pin dark vibrancy regardless of the system appearance — without
+        // this, .hudWindow blends toward light glass in Light Mode, and
+        // every key color below is tuned for contrast against dark glass.
+        window.appearance = NSAppearance(named: .darkAqua)
 
         let visualEffect = NSVisualEffectView(frame: contentRect)
         visualEffect.material = .hudWindow
