@@ -46,10 +46,8 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         let padding: CGFloat = 16
         let boardWidth = layout.width * layout.unit
         let boardHeight = layout.height * layout.unit
-        // The toolbar (unmapped-key readout + two buttons) needs a minimum
-        // width regardless of the board — some imported custom keyboards
-        // (e.g. macropads) are narrower than the toolbar itself, which
-        // would otherwise push the Layout button to a negative x.
+        // Some bundled boards (nafuda, setta21) are narrower than the toolbar
+        // itself, which would push the Layout button to a negative x.
         let resetButtonWidth: CGFloat = 80
         let layoutButtonWidth: CGFloat = 100
         let buttonGap: CGFloat = 8
@@ -73,9 +71,8 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         window.backgroundColor = .clear
         window.isMovableByWindowBackground = true
         window.delegate = self
-        // Pin dark vibrancy regardless of the system appearance — without
-        // this, .hudWindow blends toward light glass in Light Mode, and
-        // every key color below is tuned for contrast against dark glass.
+        // Forced, not inherited: key colors are tuned for dark glass, and
+        // .hudWindow blends light in Light Mode.
         window.appearance = NSAppearance(named: .darkAqua)
 
         let visualEffect = NSVisualEffectView(frame: contentRect)
@@ -87,10 +84,7 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         let contentView = SwallowingContentView(frame: contentRect)
         contentView.addSubview(visualEffect)
 
-        // A flat dark tint over the vibrancy, not a swap to a more opaque
-        // material — keeps the glass see-through while giving low-alpha key
-        // states (untested, tested) a darker, more even backdrop to read
-        // against regardless of what's behind the window.
+        // Tint rather than a more opaque material, so the glass stays see-through.
         let scrim = NSView(frame: contentRect)
         scrim.wantsLayer = true
         scrim.layer?.backgroundColor = NSColor.black.withAlphaComponent(0.2).cgColor
