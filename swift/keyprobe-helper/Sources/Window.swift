@@ -55,7 +55,8 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
         let buttonGap: CGFloat = 8
         let labelGap: CGFloat = 8
         let buttonsWidth = resetButtonWidth + buttonGap + layoutButtonWidth
-        let toolbarMinWidth: CGFloat = padding * 2 + buttonsWidth + labelGap + 120
+        let labelMinWidth: CGFloat = 120
+        let toolbarMinWidth: CGFloat = padding * 2 + buttonsWidth + labelGap + labelMinWidth
         let contentWidth = max(boardWidth + padding * 2, toolbarMinWidth)
         let contentSize = NSSize(width: contentWidth, height: boardHeight + toolbarHeight + padding * 2)
         let contentRect = NSRect(origin: .zero, size: contentSize)

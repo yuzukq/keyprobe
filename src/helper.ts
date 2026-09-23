@@ -9,6 +9,10 @@ import fs from "fs";
 const PID_FILE = path.join(environment.supportPath, "keyprobe-helper.pid");
 const LOG_FILE = path.join(environment.supportPath, "keyprobe-helper.log");
 
+// LocalStorage key search-layout.tsx writes and open.tsx reads to override
+// the Keyboard Layout preference for the next launch.
+export const OVERRIDE_KEY = "selectedLayout";
+
 function getHelperPath(): string {
   return path.join(environment.assetsPath, "KeyProbeHelper");
 }

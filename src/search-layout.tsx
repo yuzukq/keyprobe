@@ -12,10 +12,8 @@ import {
 import { useEffect, useState } from "react";
 import fs from "fs";
 import path from "path";
-import { readPidOrNull, stopHelper, startHelper } from "./helper";
+import { readPidOrNull, stopHelper, startHelper, OVERRIDE_KEY } from "./helper";
 import { getStrings } from "./i18n";
-
-const OVERRIDE_KEY = "selectedLayout";
 
 interface LayoutEntry {
   stem: string;

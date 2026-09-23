@@ -25,7 +25,7 @@
       "name": "search-layout",
       "title": "Select Keyboard Layout",
       "subtitle": "KeyProbe",
-      "description": "Search and pick which keyboard layout to test (overrides the Keyboard Layout preference until changed again)",
+      "description": "Search and pick which keyboard layout to test (overrides the Keyboard Layout preference; includes an entry to revert to it)",
       "mode": "view"
     }
   ],

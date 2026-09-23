@@ -5,9 +5,6 @@ import AppKit
 /// surface as text instead of being silently dropped, since telling
 /// "no event" apart from "dead key" is exactly what this tool is for.
 final class KeyboardView: NSView {
-    // Named boardLayout, not layout: NSView already declares `func layout()`
-    // for its own layout pass, and a stored property named `layout` shadows it.
-    private let boardLayout: Layout
     // A keycode can map to more than one KeyView on a custom board — e.g. a
     // split keyboard's symmetric thumb clusters both sending space. The OS
     // genuinely can't tell which physical key produced the event, so all
@@ -16,7 +13,6 @@ final class KeyboardView: NSView {
     private let unmappedLabel: NSTextField
 
     init(layout: Layout, unmappedLabel: NSTextField) {
-        self.boardLayout = layout
         self.unmappedLabel = unmappedLabel
         let size = NSSize(width: layout.width * layout.unit, height: layout.height * layout.unit)
         super.init(frame: NSRect(origin: .zero, size: size))
