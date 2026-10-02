@@ -45,7 +45,9 @@ function loadLayouts(): LayoutEntry[] {
 const BUILT_IN = new Set(["ansi", "jis", "iso"]);
 
 export default function Command() {
-  const [layouts, setLayouts] = useState<LayoutEntry[]>([]);
+  // Read during the first render rather than in useEffect, so the list
+  // never renders with an empty Custom Keyboards section first.
+  const [layouts] = useState<LayoutEntry[]>(loadLayouts);
   // undefined = not read from LocalStorage yet (avoid flashing the wrong
   // row's "Current" badge while that read is in flight). null = read
   // finished, no override saved, so open.tsx falls back to the Preferences
@@ -55,7 +57,6 @@ export default function Command() {
   const preferenceLayoutMode = getPreferenceValues<Preferences>().layoutMode;
 
   useEffect(() => {
-    setLayouts(loadLayouts());
     LocalStorage.getItem<string>(OVERRIDE_KEY).then((v) =>
       setCurrent(v ?? null),
     );
@@ -105,7 +106,10 @@ export default function Command() {
   }
 
   return (
-    <List searchBarPlaceholder="Search keyboard layouts...">
+    <List
+      isLoading={current === undefined}
+      searchBarPlaceholder="Search keyboard layouts..."
+    >
       <List.Section title="Built-in">
         <List.Item
           title="Use Preference Setting"
