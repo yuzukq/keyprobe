@@ -51,23 +51,3 @@
 > Hardware media/volume/brightness keys arrive as a different event type this tool doesn't capture, so they won't register at all — not even as an unmapped key.
 
 - Small ZMK-firmware layouts like cornix couldn't have their default keymap auto-parsed (heavy macro use), so their layout was built from a reference image of the actual default keymap instead. To test a key that isn't shown on the board, check the unmapped-key readout at the top of the panel, or switch to another Keyboard Layout such as the 100% (ANSI) full-size board
-
-## Adding a custom keyboard layout
-
-Bundled boards are converted from QMK/ZMK firmware sources using the scripts in `tools/`:
-
-```bash
-# QMK boards (keyboard.json/info.json + keymap.c or keymap.json)
-python3 tools/qmk_to_layout.py \
-  --keyboard-json <qmk_firmware>/keyboards/<board>/keyboard.json \
-  --keymap <qmk_firmware>/keyboards/<board>/keymaps/default/keymap.json \
-  --name "My Board" --out assets/layouts/myboard.json
-
-# ZMK boards (a physical layout JSON + a .keymap DTS file)
-python3 tools/zmk_to_layout.py \
-  --geometry <zmk-config>/config/myboard.json --layout-name default_layout \
-  --keymap <zmk-config>/config/myboard.keymap \
-  --name "My Board" --out assets/layouts/myboard.json
-```
-
-Drop the resulting JSON into `assets/layouts/` — it's picked up automatically by the search UI, no code changes needed. Run each script with `--help` for the full set of options.
