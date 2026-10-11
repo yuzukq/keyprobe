@@ -1,7 +1,7 @@
 {
   "$schema": "https://www.raycast.com/schemas/extension.json",
-  "name": "keyprobe",
-  "title": "KeyProbe",
+  "name": "keyprobe-keyboard-tester",
+  "title": "KeyProbe - Keyboard Tester",
   "description": "Visually test every key on your keyboard in a native macOS panel launched from Raycast.",
   "icon": "icon.png",
   "author": "yuzukq",

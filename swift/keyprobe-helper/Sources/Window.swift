@@ -142,7 +142,7 @@ final class KeyProbeWindowController: NSObject, NSWindowDelegate {
     }
 
     @objc private func layoutTapped() {
-        guard let url = URL(string: "raycast://extensions/yuzukq/keyprobe/search-layout") else { return }
+        guard let url = URL(string: "raycast://extensions/yuzukq/keyprobe-keyboard-tester/search-layout") else { return }
         NSWorkspace.shared.open(url)
     }
 
