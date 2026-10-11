@@ -22,7 +22,7 @@
 
 This is a dev-time tool, not shipped in the extension: run it once per
 keyboard you want to add, review the output, commit the resulting JSON to
-assets/layouts/. See README.md's "自作キーボードレイアウト" section.
+assets/layouts/. See tools/README.md for usage.
 """
 
 import argparse

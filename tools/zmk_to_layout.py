@@ -27,8 +27,8 @@ Geometry (--geometry) is always a ZMK physical layout JSON:
 w/h default to 1.0 when absent (true for moNa2/roBa's own JSON — they're
 plain column-staggered splits where every key really is 1u).
 
-Dev-time tool, not shipped in the extension. See README's "ZMKファーム
-ウェア対応" section for which boards use which mode and why.
+Dev-time tool, not shipped in the extension. See tools/README.md for
+usage.
 """
 
 import argparse
