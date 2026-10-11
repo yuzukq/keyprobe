@@ -30,7 +30,7 @@
 2. Grant **Input Monitoring** permission when prompted, then run the command again
 
 > [!IMPORTANT]
-> The first run needs **Input Monitoring** permission (not Accessibility). Grant it in System Settings → Privacy & Security → Input Monitoring by enabling `KeyProbeHelper`, then run **Open KeyProbe** again. Until it's granted, the panel doesn't open and Raycast shows a "Helper failed to start" message instead.
+> The first run needs **Input Monitoring** permission (not Accessibility). Grant it in System Settings → Privacy & Security → Input Monitoring by enabling `KeyProbeHelper`, then run **Open KeyProbe** again. Until it's granted, the panel doesn't open — Raycast opens the Input Monitoring settings for you instead.
 
 ## Choosing a layout
 
