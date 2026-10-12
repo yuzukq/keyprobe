@@ -109,8 +109,7 @@ export async function startHelper(layoutMode: string): Promise<StartResult> {
   if (readLogSince(logOffset).includes(PERMISSION_DENIED_LOG)) {
     return {
       success: false,
-      error:
-        "Grant Input Monitoring to KeyProbeHelper, then run Open KeyProbe again",
+      error: "Grant Input Monitoring to Raycast, then run Open KeyProbe again",
       needsPermission: true,
     };
   }
